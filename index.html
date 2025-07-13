@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Chart</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Сначала загружаем внешние библиотеки -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <div class="header-main">
+                <img src="загрузка.png" alt="Логотип" class="header-logo"/>
+                <h1>Торговая платформа</h1>
+            </div>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="chart">График</button>
+                <button class="tab-button" data-tab="monitor">Монитор</button>
+                <button class="tab-button" data-tab="converter">Конвертация</button>
+                <button class="tab-button" data-tab="orderbook">Стакан</button>
+                <button class="tab-button" data-tab="probability">Вероятности движения</button>
+                <button class="tab-button" data-tab="news">Новости и события</button>
+            </div>
+        </header>
+        <main class="content-wrapper">
+            <!-- Вкладка с графиком -->
+            <div class="tab-content active" id="chart-tab">
+                <div class="crypto-selector">
+                    <select id="cryptoSymbol">
+                        <option value="BTCUSDT">Bitcoin (BTC)</option>
+                        <option value="TRXUSDT">Tron (TRX)</option>
+                        <option value="ETHUSDT">Ethereum (ETH)</option>
+                        <option value="BNBUSDT">Binance Coin (BNB)</option>
+                        <option value="ADAUSDT">Cardano (ADA)</option>
+                        <option value="DOGEUSDT">Dogecoin (DOGE)</option>
+                        <option value="XRPUSDT">Ripple (XRP)</option>
+                        <option value="SOLUSDT">Solana (SOL)</option>
+                        <option value="DOTUSDT">Polkadot (DOT)</option>
+                        <option value="MATICUSDT">Polygon (MATIC)</option>
+                        <option value="SUIUSDT">Sui (SUI)</option>
+                        <option value="AVAXUSDT">Avalanche (AVAX)</option>
+                        <option value="LINKUSDT">Chainlink (LINK)</option>
+                    </select>
+                </div>
+                <div class="controls">
+                    <div class="interval-buttons">
+                        <button class="interval-btn" data-interval="15m">15 мин</button>
+                        <button class="interval-btn" data-interval="30m">30 мин</button>
+                        <button class="interval-btn" data-interval="1h">1 час</button>
+                        <button class="interval-btn" data-interval="1d">1 день</button>
+                    </div>
+                    <div class="date-range">
+                        <input type="date" id="startDate">
+                        <input type="date" id="endDate">
+                    </div>
+                    <button id="themeToggle">🌓</button>
+                </div>
+
+                <div class="chart-container">
+                    <!-- Графики будут добавлены здесь -->
+                </div>
+
+                <div id="candleInfo" class="candle-info">
+                    <!-- Информация о свече будет добавлена здесь -->
+                </div>
+
+                <div class="tools-panel">
+                    <button id="fibonacciTool">Фибоначчи</button>
+                    <button id="removeFibonacci">Удалить Фибоначчи</button>
+                    <button id="clearChart">Очистить все</button>
+                    <button id="exportCSV">Экспорт CSV</button>
+                </div>
+
+                <div class="grid-bot-calculator">
+                    <h3>Расчет Грид-Бота</h3>
+                    <div class="grid-inputs">
+                        <div class="form-group">
+                            <label for="buyPrice">Цена покупки</label>
+                            <input type="number" id="buyPrice" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="sellPrice">Цена продажи</label>
+                            <input type="number" id="sellPrice" step="0.01">
+                        </div>
+                        <button id="calculateGrid">Рассчитать</button>
+                    </div>
+                    <div id="gridResult" class="grid-result"></div>
+                    <div id="gridTradeLog" class="grid-trade-log">
+                        <h4>Лог сделок</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Время</th>
+                                    <th>Тип</th>
+                                    <th>Цена</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gridTradeLogBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка монитора -->
+            <div class="tab-content" id="monitor-tab">
+                <div class="monitor-container">
+                    <div class="monitor-header">
+                        <h2>Монитор криптовалют</h2>
+                        <div class="monitor-controls">
+                            <button id="refreshMonitor">Обновить</button>
+                            <select id="monitorInterval">
+                                <option value="1m">1 минута</option>
+                                <option value="5m">5 минут</option>
+                                <option value="15m">15 минут</option>
+                                <option value="1h">1 час</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="monitor-grid">
+                        <table id="monitorTable">
+                            <thead>
+                                <tr>
+                                    <th>Пара</th>
+                                    <th>Цена</th>
+                                    <th>Изменение (24ч)</th>
+                                    <th>Объем (24ч)</th>
+                                    <th>Макс. цена</th>
+                                    <th>Мин. цена</th>
+                                    <th>RSI</th>
+                                    <th>Тренд</th>
+                                    <th>Волатильность (24ч)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monitorTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка Конвертера -->
+            <div class="tab-content" id="converter-tab">
+              <div id="crypto-converter">
+                <h3>Крипто-конвертер</h3>
+                <input type="number" id="cc-amount" placeholder="Сумма" value="1" />
+                <select id="cc-from"></select>
+                <button id="cc-swap">⇄</button>
+                <select id="cc-to"></select>
+                <button id="cc-convert">Конвертировать</button>
+                <button id="cc-auto">Автообновление</button>
+                <h3 id="cc-result">Результат: ...</h3>
+                <div class="converter-actions">
+                  <button id="cc-export">Экспорт истории</button>
+                  <button id="cc-clear">Очистить историю</button>
+                </div>
+                <div id="cc-history"><strong>История:</strong></div>
+              </div>
+            </div>
+
+            <!-- Вкладка Стакан -->
+            <div class="tab-content" id="orderbook-tab">
+              <div id="orderbook-container">
+                <h3>Биржевой стакан (Orderbook)</h3>
+                <div class="orderbook-info">
+                  <p><b>Стакан</b> — это таблица всех актуальных заявок на покупку (Bid) и продажу (Ask) по выбранной криптовалюте. Позволяет анализировать глубину рынка, плотности и крупные лимитные ордера.</p>
+                  <ul class="orderbook-hints">
+                    <li><b>Стена <span class="tooltip" title="Крупная заявка, объём которой превышает 10% от суммы всех заявок в стакане. Может указывать на сильный уровень поддержки или сопротивления.">?</span></b> — крупная лимитная заявка, выделяется цветом.</li>
+                    <li><b>Тепловая карта <span class="tooltip" title="Визуальное выделение плотности заявок цветом: чем насыщеннее цвет — тем больше объём.">?</span></b> — цветовое выделение плотных уровней.</li>
+                    <li><b>Спред <span class="tooltip" title="Разница между лучшей ценой покупки и продажи. Чем меньше спред — тем ликвиднее рынок.">?</span></b> — разница между лучшей ценой покупки и продажи.</li>
+                    <li><b>Ликвидность <span class="tooltip" title="Суммарный объём всех заявок на покупку или продажу в стакане.">?</span></b> — общий объём заявок на покупку/продажу.</li>
+                  </ul>
+                </div>
+                <div class="orderbook-controls">
+                  <label for="orderbook-symbol">Монета:</label>
+                  <select id="orderbook-symbol">
+                    <option value="BTCUSDT">BTC/USDT</option>
+                    <option value="ETHUSDT">ETH/USDT</option>
+                    <option value="BNBUSDT">BNB/USDT</option>
+                    <option value="TRXUSDT">TRX/USDT</option>
+                    <option value="ADAUSDT">ADA/USDT</option>
+                    <option value="DOGEUSDT">DOGE/USDT</option>
+                    <option value="XRPUSDT">XRP/USDT</option>
+                    <option value="SOLUSDT">SOL/USDT</option>
+                    <option value="DOTUSDT">DOT/USDT</option>
+                    <option value="MATICUSDT">MATIC/USDT</option>
+                    <option value="SUIUSDT">SUI/USDT</option>
+                    <option value="AVAXUSDT">AVAX/USDT</option>
+                    <option value="LINKUSDT">LINK/USDT</option>
+                  </select>
+                  <input type="number" id="orderbook-volume-filter" min="0" step="0.0001" placeholder="Мин. объём" style="width:110px" title="Показывать только заявки с объёмом больше этого значения">
+                  <button id="orderbook-refresh" title="Обновить стакан вручную">�� Обновить</button>
+                  <button id="orderbook-export" title="Экспортировать стакан в CSV">⬇️ Экспорт</button>
+                  <span id="orderbook-spread"></span>
+                </div>
+                <div class="orderbook-table-wrapper">
+                  <table id="orderbook-table">
+                    <thead>
+                      <tr>
+                        <th class="ask-col" colspan="3">Продажа (Ask)</th>
+                        <th></th>
+                        <th class="bid-col" colspan="3">Покупка (Bid)</th>
+                      </tr>
+                      <tr>
+                        <th class="ask-col">Цена</th>
+                        <th class="ask-col">Объём</th>
+                        <th class="ask-col">Кум. объём <span class="tooltip" title="Кумулятивный объём — сумма объёмов от лучшей цены до текущей строки.">?</span></th>
+                        <th></th>
+                        <th class="bid-col">Кум. объём <span class="tooltip" title="Кумулятивный объём — сумма объёмов от лучшей цены до текущей строки.">?</span></th>
+                        <th class="bid-col">Объём</th>
+                        <th class="bid-col">Цена</th>
+                      </tr>
+                    </thead>
+                    <tbody id="orderbook-body">
+                      <!-- Данные стакана будут подгружаться сюда -->
+                    </tbody>
+                  </table>
+                </div>
+                <div id="orderbook-indicators" class="orderbook-indicators">
+                  <!-- Индикаторы spread, ликвидность, VWAP и т.д. -->
+                </div>
+                <div id="orderbook-error" class="orderbook-error"></div>
+              </div>
+            </div>
+            <!-- Вкладка Вероятности движения -->
+            <div class="tab-content" id="probability-tab">
+              <div class="probability-container">
+                <h3>Вероятности движения</h3>
+                <form id="probability-form">
+                  <label for="probability-symbol">Монета:</label>
+                  <select id="probability-symbol-select" style="width:120px">
+                    <option value="BTCUSDT">BTCUSDT</option>
+                    <option value="ETHUSDT">ETHUSDT</option>
+                    <option value="BNBUSDT">BNBUSDT</option>
+                    <option value="TRXUSDT">TRXUSDT</option>
+                    <option value="ADAUSDT">ADAUSDT</option>
+                    <option value="DOGEUSDT">DOGEUSDT</option>
+                    <option value="XRPUSDT">XRPUSDT</option>
+                    <option value="SOLUSDT">SOLUSDT</option>
+                    <option value="DOTUSDT">DOTUSDT</option>
+                    <option value="MATICUSDT">MATICUSDT</option>
+                    <option value="SUIUSDT">SUIUSDT</option>
+                    <option value="AVAXUSDT">AVAXUSDT</option>
+                    <option value="LINKUSDT">LINKUSDT</option>
+                  </select>
+                  <input type="text" id="probability-symbol" value="BTCUSDT" style="width:90px" required placeholder="Другая монета">
+                  <label for="probability-interval">Интервал:</label>
+                  <select id="probability-interval">
+                    <option value="1m">1 мин</option>
+                    <option value="5m">5 мин</option>
+                    <option value="15m">15 мин</option>
+                    <option value="1h" selected>1 час</option>
+                    <option value="4h">4 часа</option>
+                    <option value="1d">1 день</option>
+                  </select>
+                  <label for="probability-start">Начало:</label>
+                  <input type="datetime-local" id="probability-start" required>
+                  <label for="probability-end">Конец:</label>
+                  <input type="datetime-local" id="probability-end" required>
+                  <button type="submit">Рассчитать</button>
+                </form>
+                <div id="probability-result" class="probability-result"></div>
+                <div id="probability-error" class="probability-error"></div>
+                <div id="probability-chart-container" style="max-width:320px;margin:18px auto 0 auto;display:none;">
+                  <canvas id="probability-chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <!-- Вкладка Новости по крипте -->
+            <div class="tab-content" id="news-tab">
+              <div class="news-container">
+                <h3>Новости по крипте</h3>
+                <div id="news-list" class="news-list"></div>
+                <div id="news-error" class="news-error"></div>
+              </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Затем наши скрипты -->
+    <script src="arbitrage.js"></script>
+    <script src="script.js"></script>
+    <script src="monitor.js"></script>
+    <script>
+    // Устанавливаем сегодняшнюю дату по умолчанию для input[type='date']
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        var formatted = yyyy + '-' + mm + '-' + dd;
+        var start = document.getElementById('startDate');
+        var end = document.getElementById('endDate');
+        if (start) start.value = formatted;
+        if (end) end.value = formatted;
+    });
+
+    // --- Логика переключения вкладок ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate all tabs and content
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Activate the clicked tab and its content
+                tab.classList.add('active');
+                const activeTabContent = document.getElementById(tab.dataset.tab + '-tab');
+                if (activeTabContent) {
+                    activeTabContent.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // --- Логика крипто-конвертера ---
+    (function() {
+        if (!document.getElementById('crypto-converter')) return;
+
+        const symbols = ["BTC", "ETH", "XRP", "BNB", "SOL", "ADA", "SUI", "LINK", "XLM", "AVAX", "TON", "LTC", "DOT", "USDT", "USDC", "RUB", "USD", "EUR"];
+        const fiatSymbols = ["RUB", "USD", "EUR"];
+
+        const amountInput = document.getElementById('cc-amount');
+        const fromSelect = document.getElementById('cc-from');
+        const toSelect = document.getElementById('cc-to');
+        const swapBtn = document.getElementById('cc-swap');
+        const convertBtn = document.getElementById('cc-convert');
+        const autoBtn = document.getElementById('cc-auto');
+        const resultEl = document.getElementById('cc-result');
+        const exportBtn = document.getElementById('cc-export');
+        const clearBtn = document.getElementById('cc-clear');
+        const historyEl = document.getElementById('cc-history');
+
+        let autoUpdateInterval = null;
+
+        // --- Инициализация ---
+        function init() {
+            symbols.forEach(sym => {
+                fromSelect.add(new Option(sym, sym));
+                toSelect.add(new Option(sym, sym));
+            });
+            fromSelect.value = "BTC";
+            toSelect.value = "USDT";
+
+            renderHistory();
+            convert();
+
+            // Event Listeners
+            convertBtn.addEventListener('click', convert);
+            swapBtn.addEventListener('click', swapCurrencies);
+            autoBtn.addEventListener('click', toggleAutoUpdate);
+            clearBtn.addEventListener('click', clearHistory);
+            exportBtn.addEventListener('click', exportHistory);
+        }
+
+        // --- Логика API и конвертации ---
+        async function getPrice(from, to) {
+            const symbol = from + to;
+            try {
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+                if (!res.ok) return null;
+                const json = await res.json();
+                return parseFloat(json.price);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function convert() {
+            const amount = parseFloat(amountInput.value) || 1;
+            const from = fromSelect.value;
+            const to = toSelect.value;
+
+            if (from === to) {
+                resultEl.textContent = `Результат: ${amount} ${from}`;
+                return;
+            }
+
+            resultEl.textContent = 'Получение курса...';
+
+            try {
+                let rate = await getPrice(from, to);
+                let result;
+
+                if (rate) {
+                    result = amount * rate;
+                } else {
+                    const inverseRate = await getPrice(to, from);
+                    if (inverseRate) {
+                        result = amount / inverseRate;
+                    } else {
+                        throw new Error('Пара не найдена');
+                    }
+                }
+
+                resultEl.textContent = `Результат: ${result.toFixed(6)} ${to}`;
+                saveHistory(`${amount} ${from} = ${result.toFixed(6)} ${to}`);
+            } catch (e) {
+                resultEl.textContent = 'Ошибка: пара не найдена.';
+            }
+        }
+
+        function swapCurrencies() {
+            [fromSelect.value, toSelect.value] = [toSelect.value, fromSelect.value];
+            convert();
+        }
+
+        function toggleAutoUpdate() {
+            if (autoUpdateInterval) {
+                clearInterval(autoUpdateInterval);
+                autoUpdateInterval = null;
+                autoBtn.textContent = 'Автообновление';
+                autoBtn.style.backgroundColor = 'var(--primary-color)';
+            } else {
+                autoUpdateInterval = setInterval(convert, 10000);
+                autoBtn.textContent = 'Остановить';
+                autoBtn.style.backgroundColor = '#f44336'; // Crimson-like red
+            }
+        }
+
+        // --- Управление историей ---
+        function getHistory() {
+            return JSON.parse(localStorage.getItem('ccHistory') || '[]');
+        }
+
+        function saveHistory(entry) {
+            let history = getHistory();
+            history.unshift(entry);
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            localStorage.setItem('ccHistory', JSON.stringify(history));
+            renderHistory();
+        }
+        
+        function renderHistory() {
+            const history = getHistory();
+            historyEl.innerHTML = '<strong>История:</strong><br/>' + history.map(h => `<div>${h}</div>`).join('');
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('ccHistory');
+            renderHistory();
+        }
+
+        function exportHistory() {
+            const history = getHistory().join('\\n');
+            const blob = new Blob([history], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'conversion_history.txt';
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        init();
+    })();
+    </script>
+</body>
+</html> 

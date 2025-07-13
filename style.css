@@ -1,0 +1,1566 @@
+:root {
+    --primary-color: #2196f3;
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --border-color: #e0e0e0;
+    --chart-background: #ffffff;
+    --header-background: #f5f5f5;
+    --hover-color: #f8f8f8;
+    --primary-color-hover: #1e88e5;
+    --edit-color: #4caf50;
+    --delete-color: #f44336;
+    --input-background: #ffffff;
+}
+
+[data-theme="dark"] {
+    --primary-color: #64b5f6;
+    --background-color: #1e1e1e;
+    --text-color: #ffffff;
+    --border-color: #404040;
+    --chart-background: #2d2d2d;
+    --header-background: #2d2d2d;
+    --hover-color: #2a2a2a;
+    --primary-color-hover: #2196f3;
+    --edit-color: #66bb6a;
+    --delete-color: #ef5350;
+    --input-background: #2d2d2d;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.header-logo {
+    height: 40px;
+    width: 40px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--secondary-bg);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.date-range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.interval-buttons button {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.interval-buttons button:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.interval-buttons button.active {
+    border: 2px solid var(--primary-color);
+    background: var(--input-bg);
+    color: var(--primary-color);
+}
+
+.date-range input {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
+    border-radius: 4px;
+}
+
+#themeToggle {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 500px;
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--chart-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.chart-wrapper.active {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.2);
+}
+
+.chart-wrapper:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.chart-wrapper h2 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.chart {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.indicators-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.indicator {
+    background: var(--chart-background);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.indicator h3 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.tools-panel {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.tools-panel button {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tools-panel button:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.tools-panel button.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Стили для уровней Фибоначчи */
+.fibonacci-level {
+    position: absolute;
+    right: 0;
+    padding: 4px 8px;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-color);
+}
+
+.fibonacci-level:hover {
+    background: var(--hover-color);
+}
+
+@media (max-width: 768px) {
+    .header-main {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .controls, .date-range, .converter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controls > *, .converter-form > * {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .chart {
+        height: 300px;
+    }
+
+    .indicators-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5em;
+    }
+    .tabs {
+        justify-content: center;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .interval-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+    }
+
+    .date-range {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
+
+    .chart {
+        height: 250px;
+    }
+}
+
+/* Стили для статусов */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.status-активен {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-ожидание {
+    background-color: #2196F3;
+    color: white;
+}
+
+.status-сконвертирован {
+    background-color: #FF9800;
+    color: white;
+}
+
+.status-закрыт {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+/* Стили для таблиц */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--header-background);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: var(--hover-color);
+}
+
+/* Стили для кнопок действий в таблице */
+.action-button {
+    padding: 6px 12px;
+    margin: 0 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.edit-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #1976D2;
+}
+
+.delete-button {
+    background-color: #F44336;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #D32F2F;
+}
+
+/* Стили для подтверждения удаления */
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--background-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    max-width: 400px;
+    width: 90%;
+}
+
+.confirm-dialog h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+}
+
+.confirm-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.confirm-dialog-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.confirm-yes {
+    background-color: #F44336;
+    color: white;
+}
+
+.confirm-no {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+/* Удаляем стили для временной шкалы */
+.time-scale {
+    display: none;
+}
+
+.arbitrage-info {
+    background-color: var(--chart-background);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.arbitrage-result {
+    color: var(--text-color);
+}
+
+.arbitrage-result h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.arbitrage-result h4 {
+    color: var(--text-color);
+    margin: 15px 0 10px 0;
+    font-size: 1.1em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.arbitrage-result p {
+    margin: 5px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.arbitrage-result p::after {
+    content: attr(data-value);
+    color: var(--text-color);
+}
+
+/* Стили для предупреждений */
+.warning-text {
+    color: #ff9800;
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.current-prices {
+    background-color: var(--chart-background);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.current-prices h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.current-prices p {
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.crypto-selector {
+    margin: 10px 0;
+}
+
+.crypto-selector select {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.crypto-selector select:hover {
+    border-color: var(--primary-color);
+}
+
+.crypto-selector select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color-transparent);
+}
+
+.crypto-selector select option {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 8px;
+}
+
+.candle-info {
+    display: none;
+    position: fixed;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.candle-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.candle-time {
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.candle-prices {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.candle-prices div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+[data-theme="dark"] .candle-info {
+    background-color: var(--chart-background);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* Стили для калькулятора Грид-Бота */
+.grid-bot-calculator {
+    background-color: var(--chart-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.grid-bot-calculator h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.grid-inputs {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.grid-inputs .form-group {
+    margin-bottom: 0;
+}
+
+.grid-inputs label {
+    margin-right: 5px;
+}
+
+.grid-inputs input[type="number"] {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    width: 120px;
+}
+
+.grid-inputs button {
+    padding: 8px 16px;
+    border: 1px solid var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.grid-inputs button:hover {
+    background: var(--primary-color-hover);
+}
+
+.grid-result {
+    margin-top: 15px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+/* Стили для лога сделок Грид-Бота */
+.grid-trade-log {
+    margin-top: 20px;
+}
+
+.grid-trade-log h4 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+#gridTradeLogTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: var(--background-color);
+    font-size: 14px;
+}
+
+#gridTradeLogTable th,
+#gridTradeLogTable td {
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+#gridTradeLogTable th {
+    background-color: var(--header-background);
+    font-weight: bold;
+}
+
+#gridTradeLogTable tbody tr:nth-child(even) {
+    background-color: var(--hover-color);
+}
+
+#gridTradeLogTable .buy-log {
+    color: #4caf50; /* Зеленый для покупок */
+}
+
+#gridTradeLogTable .sell-log {
+    color: #f44336; /* Красный для продаж */
+}
+
+.grid-trade-log table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.grid-trade-log th,
+.grid-trade-log td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: left;
+}
+
+.grid-trade-log th {
+    background-color: var(--header-background);
+}
+
+/* Стили для вкладок */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background: var(--hover-bg);
+}
+
+.tab-button.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Стили для монитора */
+.monitor-container {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.monitor-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.monitor-controls select {
+    padding: 8px;
+    border-radius: 5px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.monitor-grid {
+    overflow-x: auto;
+}
+
+#monitorTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+#monitorTable th,
+#monitorTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#monitorTable th {
+    background: var(--header-bg);
+    font-weight: bold;
+}
+
+#monitorTable tr:hover {
+    background: var(--hover-bg);
+}
+
+.price-up {
+    color: #4CAF50;
+}
+
+.price-down {
+    color: #f44336;
+}
+
+.monitor-alerts {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.alert-controls {
+    margin-bottom: 15px;
+}
+
+.alerts-list {
+    display: grid;
+    gap: 10px;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--input-bg);
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.alert-item button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    background: var(--danger-color);
+    color: white;
+    cursor: pointer;
+}
+
+.alert-item button:hover {
+    opacity: 0.9;
+}
+
+/* Стили для таблицы статистики */
+.monitor-stats {
+    margin-top: 30px;
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.monitor-stats h3 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 1.2em;
+}
+
+.stats-grid {
+    overflow-x: auto;
+}
+
+#statsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+#statsTable th,
+#statsTable td {
+    padding: 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+#statsTable th:first-child,
+#statsTable td:first-child {
+    text-align: left;
+}
+
+#statsTable th {
+    background: var(--header-bg);
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+#statsTable tr:hover {
+    background: var(--hover-bg);
+}
+
+#statsTable td.positive {
+    color: #4CAF50;
+}
+
+#statsTable td.negative {
+    color: #f44336;
+}
+
+#statsTable td.neutral {
+    color: var(--text-color);
+}
+
+/* Адаптивность для таблиц */
+@media screen and (max-width: 1200px) {
+    .monitor-grid,
+    .stats-grid {
+        overflow-x: auto;
+        padding-bottom: 15px;
+    }
+
+    #monitorTable,
+    #statsTable {
+        min-width: 1000px;
+    }
+}
+
+/* Стили для редактируемых ячеек */
+.editable {
+    cursor: pointer;
+    position: relative;
+}
+
+.editable:hover {
+    background-color: var(--hover-bg);
+}
+
+.cell-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    border: 2px solid var(--primary-color);
+    background: var(--background-color);
+    color: var(--text-color);
+    font-size: inherit;
+    box-sizing: border-box;
+}
+
+.cell-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+.period-controls {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #1a1a1a;
+    border-radius: 5px;
+}
+
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-input {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.update-button {
+    background: #2962ff;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.update-button:hover {
+    background: #1e4bd8;
+}
+
+.converter-container {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 30px 30px 20px 30px;
+    margin: 30px auto 0 auto;
+    max-width: 600px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.converter-title {
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 1.6em;
+    text-align: center;
+}
+.converter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.converter-input, .converter-select {
+    padding: 10px 14px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    min-width: 120px;
+}
+.converter-select {
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    min-width: 110px;
+    font-size: 1em;
+}
+.converter-select option {
+    background: var(--input-bg);
+    color: var(--text-color);
+}
+.converter-btn {
+    padding: 10px 18px;
+    border-radius: 5px;
+    border: none;
+    background: var(--primary-color);
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.converter-btn:hover {
+    background: var(--primary-color-hover, #1976d2);
+}
+.converter-result {
+    margin: 20px 0 10px 0;
+    color: var(--text-color);
+    text-align: center;
+}
+.converter-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+.converter-history {
+    background: var(--background-color);
+    border-radius: 8px;
+    padding: 15px;
+    color: var(--text-color);
+    font-size: 1em;
+    min-height: 40px;
+    margin-top: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Стили для крипто-конвертера */
+#crypto-converter {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+#crypto-converter h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+#crypto-converter input,
+#crypto-converter select,
+#crypto-converter button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    vertical-align: middle;
+}
+
+#crypto-converter select option {
+    background: var(--input-bg);
+    color: var(--text-color);
+}
+
+#crypto-converter button {
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+#crypto-converter button:hover {
+    background-color: var(--primary-color-hover, #1976d2);
+}
+
+#crypto-converter #cc-swap {
+    font-size: 20px;
+}
+
+#crypto-converter #cc-result {
+    margin-top: 15px;
+    font-size: 1.2em;
+}
+
+#crypto-converter .converter-actions {
+    margin-top: 15px;
+}
+
+#crypto-converter #cc-history {
+    margin-top: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    background: var(--background-color);
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+body[data-theme="light"] {
+    --background-color: #f4f6f8;
+    --secondary-bg: #ffffff;
+    --text-color: #212529;
+    --border-color: #dee2e6;
+    --primary-color: #007bff;
+    --primary-color-hover: #0056b3;
+    --chart-background: #ffffff;
+    --input-bg: #ffffff;
+    --hover-bg: #e9ecef;
+}
+
+body[data-theme="dark"] {
+    --background-color: #0e1012;
+    --secondary-bg: #1c1f23;
+    --text-color: #e9ecef;
+    --border-color: #343a40;
+    --primary-color: #0d6efd;
+    --primary-color-hover: #3b82f6;
+    --chart-background: #1c1f23;
+    --input-bg: #2a2e34;
+    --hover-bg: #343a40;
+} 
+
+/* Стили для стакана (orderbook) */
+/* Инфоблок и подсказки для стакана */
+.orderbook-info {
+    background: var(--secondary-bg);
+    border-radius: 8px;
+    padding: 12px 16px 8px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-size: 1.04em;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+.orderbook-info ul.orderbook-hints {
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+    list-style: disc;
+    color: var(--text-color);
+}
+.orderbook-info ul.orderbook-hints li {
+    margin-bottom: 2px;
+    line-height: 1.4;
+}
+.tooltip {
+    display: inline-block;
+    background: #1976d2;
+    color: #fff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 3px;
+    position: relative;
+    vertical-align: middle;
+    line-height: 16px;
+}
+.tooltip[title]:hover:after {
+    content: attr(title);
+    position: absolute;
+    left: 50%;
+    top: 120%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 6px 11px;
+    border-radius: 5px;
+    white-space: pre-line;
+    font-size: 0.97em;
+    z-index: 10;
+    min-width: 150px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+}
+.tooltip[title]:hover {
+    background: #0056b3;
+}
+
+#orderbook-table {
+    border-radius: 8px;
+    font-size: 1.08em;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+#orderbook-table th, #orderbook-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    background: none !important;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 1em;
+    transition: background 0.13s;
+    text-align: right;
+}
+#orderbook-table th {
+    background: #f7fafd !important;
+    color: #222;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: right;
+}
+#orderbook-table tr:hover td {
+    background: #f0f4fa !important;
+    box-shadow: 0 1px 4px rgba(33,150,243,0.03);
+}
+#orderbook-table td.ask-col {
+    color: #e53935;
+    font-weight: 600;
+    border-left: 0 solid transparent;
+    position: relative;
+    background: none;
+}
+#orderbook-table td.bid-col {
+    color: #43a047;
+    font-weight: 600;
+    border-right: 0 solid transparent;
+    position: relative;
+    background: none;
+}
+#orderbook-table td.ask-col.orderbook-wall {
+    border-left: 8px solid #ffb300;
+    background: linear-gradient(to left, #ffe082 0%, #ffcc80 100%);
+}
+#orderbook-table td.bid-col.orderbook-wall {
+    border-right: 8px solid #1976d2;
+    background: linear-gradient(to right, #bbdefb 0%, #90caf9 100%);
+}
+#orderbook-table td.ask-col.heat {
+    background: linear-gradient(to left, #ffebee 0%, #ffcdd2 100%);
+}
+#orderbook-table td.bid-col.heat {
+    background: linear-gradient(to right, #e8f5e9 0%, #c8e6c9 100%);
+}
+#orderbook-table td.cumvol {
+    color: #888;
+    font-weight: 400;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 0.95em;
+    background: none !important;
+}
+#orderbook-table td.center {
+    background: none !important;
+}
+.orderbook-table-wrapper {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    margin-bottom: 12px;
+}
+.orderbook-controls, .orderbook-indicators {
+    background: #f7fafd;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.orderbook-controls {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+    font-weight: 500;
+    padding: 7px 12px;
+}
+.orderbook-controls label {
+    font-size: 1em;
+    color: #1976d2;
+    font-weight: 600;
+    margin-right: 4px;
+}
+#orderbook-symbol {
+    padding: 6px 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1.2px solid #b0c4de;
+    background: #fff;
+    color: #222;
+    min-width: 110px;
+    font-weight: 500;
+}
+#orderbook-symbol:focus, #orderbook-symbol:hover {
+    border: 1.2px solid #1976d2;
+    box-shadow: 0 0 0 2px #e3f0fc;
+}
+#orderbook-refresh, #orderbook-export {
+    padding: 6px 12px;
+    font-size: 0.98em;
+    border-radius: 5px;
+    border: none;
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    margin-left: 3px;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+#orderbook-refresh:hover, #orderbook-export:hover {
+    background: #0056b3;
+}
+#orderbook-volume-filter {
+    padding: 6px 7px;
+    font-size: 0.98em;
+    border-radius: 5px;
+    border: 1.2px solid #b0c4de;
+    background: #fff;
+    color: #222;
+    margin-left: 5px;
+    margin-right: 1px;
+}
+#orderbook-volume-filter:focus {
+    border: 1.2px solid #1976d2;
+    box-shadow: 0 0 0 2px #e3f0fc;
+}
+.orderbook-indicators {
+    margin-top: 7px;
+    padding: 7px 12px;
+    font-size: 1em;
+    color: #222;
+    gap: 18px;
+    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+}
+#orderbook-spread {
+    font-weight: bold;
+    color: #1976d2;
+    margin-left: 7px;
+}
+.orderbook-error {
+    margin-top: 10px;
+    color: #d32f2f;
+    font-size: 1em;
+    background: #fff6f6;
+    border-radius: 5px;
+    padding: 6px 10px;
+    min-height: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: opacity 0.18s;
+    text-align: left;
+    word-break: break-word;
+}
+@media (max-width: 700px) {
+    #orderbook-container {
+        padding: 6px;
+        max-width: 100vw;
+    }
+    .orderbook-table-wrapper {
+        font-size: 0.95em;
+    }
+    .orderbook-info {
+        padding: 7px 4px 4px 4px;
+    }
+} 
+
+/* Стили для вкладки Вероятности движения */
+.probability-container {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 22px 24px 18px 24px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#probability-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+#probability-form label {
+    font-size: 1em;
+    color: #1976d2;
+    font-weight: 600;
+    margin-right: 4px;
+}
+#probability-form input, #probability-form select {
+    padding: 7px 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1.2px solid #b0c4de;
+    background: #fff;
+    color: #222;
+    min-width: 80px;
+    font-weight: 500;
+    transition: border 0.18s, box-shadow 0.18s;
+}
+#probability-form input:focus, #probability-form select:focus {
+    border: 1.2px solid #1976d2;
+    box-shadow: 0 0 0 2px #e3f0fc;
+}
+#probability-form button[type="submit"] {
+    padding: 7px 16px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: none;
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+#probability-form button[type="submit"]:hover {
+    background: #0056b3;
+}
+#probability-form input[type="datetime-local"] {
+    padding: 7px 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1.2px solid #b0c4de;
+    background: #fff;
+    color: #222;
+    min-width: 170px;
+    font-weight: 500;
+    transition: border 0.18s, box-shadow 0.18s;
+}
+#probability-form input[type="datetime-local"]:focus {
+    border: 1.2px solid #1976d2;
+    box-shadow: 0 0 0 2px #e3f0fc;
+}
+#probability-chart-container {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 18px 10px 10px 10px;
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#probability-chart {
+    width: 100% !important;
+    height: 220px !important;
+    max-width: 300px;
+    margin: 0 auto;
+    display: block;
+}
+.probability-result {
+    font-size: 1.18em;
+    color: #222;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    white-space: pre-line;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+}
+.probability-error {
+    color: #d32f2f;
+    font-size: 1em;
+    background: #fff6f6;
+    border-radius: 5px;
+    padding: 6px 10px;
+    min-height: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    margin-top: 6px;
+    text-align: left;
+    word-break: break-word;
+} 
+
+/* Стили для вкладки Новости и события */
+.news-container {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 22px 24px 18px 24px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+.news-card {
+    background: #f7fafd;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    padding: 14px 18px 10px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    border-left: 4px solid #bdbdbd;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    max-width: 540px;
+    margin: 0 auto;
+    position: relative;
+}
+.news-card.important {
+    border-left: 4px solid #ff9800;
+    background: #fffbe7;
+}
+.news-title {
+    font-weight: 600;
+    font-size: 1.08em;
+    color: #1976d2;
+    margin-bottom: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.18s;
+    display: inline-block;
+    line-height: 1.2;
+}
+.news-title:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+.news-date, .news-source {
+    font-size: 0.93em;
+    color: #888;
+    margin-top: 2px;
+    display: inline-block;
+}
+.news-desc {
+    font-size: 1em;
+    color: #222;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 4.2em;
+}
+.news-link {
+    color: #1976d2;
+    text-decoration: underline;
+    font-size: 0.98em;
+    margin-top: 2px;
+    display: inline-block;
+}
+.news-card img {
+    display: none !important;
+}
+.news-error {
+    color: #d32f2f;
+    font-size: 1em;
+    background: #fff6f6;
+    border-radius: 5px;
+    padding: 6px 10px;
+    min-height: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    margin-top: 6px;
+    text-align: left;
+    word-break: break-word;
+} 
