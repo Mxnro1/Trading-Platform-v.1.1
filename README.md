@@ -1,0 +1,1 @@
+# Trading-Platform-v.1.2
