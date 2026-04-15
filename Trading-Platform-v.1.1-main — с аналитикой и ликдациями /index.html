@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.binance.com https://fapi.binance.com https://fapi1.binance.com https://fapi2.binance.com https://api.bybit.com https://api.hyperliquid.xyz https://api.rss2json.com https://api.allorigins.win https://fred.stlouisfed.org https://api.github.com wss://api.hyperliquid.xyz wss://fstream.binance.com wss://stream.bybit.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+    >
+    <title>Bitcoin Chart</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="risk.css?v=6">
+    <!-- Сначала загружаем внешние библиотеки -->
+    <script
+      src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"
+      integrity="sha384-2Yiz1jBuc53MdRCA3ojcpk7cAoW2uFfKcetY6JKbqUetb537Hq2uPJrqM1Mj2AKx"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+      integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4"
+      crossorigin="anonymous"
+    ></script>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <div class="header-main">
+                <img src="logo.png" alt="Логотип" class="header-logo"/>
+                <h1>Торговая платформа</h1>
+            </div>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="home">Главная</button>
+                <button id="themeToggleHeader" class="tab-button theme-toggle-btn" type="button" title="Переключить тему">🌓</button>
+                <button class="tab-button" data-tab="chart">График</button>
+                <button class="tab-button" data-tab="risk">Риск</button>
+                <button class="tab-button" data-tab="training">Обучение</button>
+                <div class="tabs-more-wrap">
+                    <button class="tab-button tabs-more-toggle" type="button" id="mainMoreToggle" aria-expanded="false">Еще</button>
+                    <div class="tabs-more-menu" id="mainMoreMenu" hidden>
+                        <button class="tab-button tabs-more-item" data-tab="monitor">Монитор</button>
+                        <button class="tab-button tabs-more-item" data-tab="converter">Конвертация</button>
+                        <button class="tab-button tabs-more-item" data-tab="orderbook">Стакан</button>
+                        <button class="tab-button tabs-more-item" data-tab="probability">Вероятности движения</button>
+                    </div>
+                </div>
+                <button class="tab-button" data-tab="news">Новости и события</button>
+                <button class="tab-button" data-tab="liquidations">Ликвидации</button>
+                <button class="tab-button" data-tab="analytics">Аналитика</button>
+            </div>
+            <div class="market-ticker" aria-label="Лента рыночных котировок">
+                <div class="market-ticker-viewport">
+                    <div id="marketTickerTrack" class="market-ticker-track">
+                        <span class="market-ticker-loading">Загрузка рыночной ленты...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="content-wrapper">
+    <div class="tab-content active" id="home-tab">
+        <section class="home-hero">
+            <div class="home-hero-text">
+                <h2>Главная панель</h2>
+                <p>Быстрый вход в анализ, риск-модуль, мониторинг и новости. Состояние вкладок и ключевые поля сохраняются после обновления страницы.</p>
+                <div class="home-quick-actions">
+                    <button class="home-action-btn" data-go-tab="chart">Открыть график</button>
+                    <button class="home-action-btn" data-go-tab="risk">Рассчитать риск</button>
+                    <button class="home-action-btn" data-go-tab="training">Открыть обучение</button>
+                    <button class="home-action-btn" data-go-tab="news">Открыть новости</button>
+                </div>
+            </div>
+            <div class="home-status-card">
+                <h3>Текущая конфигурация</h3>
+                <div class="home-status-row"><span>Монета</span><strong id="homeCurrentSymbol">BTCUSDT</strong></div>
+                <div class="home-status-row"><span>Интервал</span><strong id="homeCurrentInterval">15m</strong></div>
+                <div class="home-status-row"><span>Период</span><strong id="homeCurrentPeriod">-</strong></div>
+            </div>
+        </section>
+
+        <section class="home-guide-grid">
+            <article class="home-guide-panel">
+                <h3>Инструкция по работе</h3>
+                <details class="home-guide-item" open>
+                    <summary>1. С чего начать?</summary>
+                    <p>Открой График, выбери монету и таймфрейм. После этого сформируй план сделки во вкладке Риск.</p>
+                </details>
+                <details class="home-guide-item">
+                    <summary>2. Как принимать решение?</summary>
+                    <p>Сверь минимум два подтверждения: Аналитика + Ликвидации или Аналитика + Новости. Не входи в позицию только по одному сигналу.</p>
+                </details>
+                <details class="home-guide-item">
+                    <summary>3. Что проверить перед входом?</summary>
+                    <p>Размер позиции, риск на сделку, ключевые уровни и текущий рыночный фон. Сценарий в Аналитике должен совпадать с твоим планом.</p>
+                </details>
+            </article>
+
+            <aside class="home-guide-panel home-data-panel">
+                <h3>Основные данные</h3>
+                <div class="home-data-grid">
+                    <article class="home-data-card">
+                        <span class="home-data-label">Сценарий рынка</span>
+                        <strong class="home-data-value" id="homeDataAnalyticsScenario">NEUTRAL</strong>
+                        <p class="home-data-subvalue" id="homeDataAnalyticsHint">Открой Аналитику для расчета bias.</p>
+                    </article>
+                    <article class="home-data-card">
+                        <span class="home-data-label">Оценка уверенности</span>
+                        <strong class="home-data-value" id="homeDataAnalyticsScore">0 / 100</strong>
+                        <p class="home-data-subvalue" id="homeDataAnalyticsRisk">Риск: -</p>
+                    </article>
+                    <article class="home-data-card">
+                        <span class="home-data-label">Ликвидации в окне</span>
+                        <strong class="home-data-value" id="homeDataLiquidationTotal">0 $</strong>
+                        <p class="home-data-subvalue" id="homeDataLiquidationMeta">Событий: 0</p>
+                    </article>
+                    <article class="home-data-card">
+                        <span class="home-data-label">Важные новости</span>
+                        <strong class="home-data-value" id="homeDataNewsImportant">0</strong>
+                        <p class="home-data-subvalue" id="homeDataNewsMeta">Всего: 0 • Источники: 0</p>
+                    </article>
+                </div>
+                <div class="home-data-updated" id="homeDataLastUpdate">Последние обновления: данные появятся после загрузки модулей.</div>
+            </aside>
+        </section>
+
+
+        <section class="home-grid">
+            <article class="home-card">
+                <h3>График</h3>
+                <p>Свечи, базовые индикаторы, экспорт и расчёт срабатываний LONG/SHORT.</p>
+                <button class="home-card-btn" data-go-tab="chart">Перейти к графику</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Риск</h3>
+                <p>Одна позиция, кросс, лестница и журнал ордеров в одном модуле.</p>
+                <button class="home-card-btn" data-go-tab="risk">Открыть риск-модуль</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Монитор</h3>
+                <p>Быстрый обзор рынка по нескольким монетам с основными метриками.</p>
+                <button class="home-card-btn" data-go-tab="monitor">Открыть монитор</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Стакан</h3>
+                <p>Ликвидность, стены, спред и тепловая карта заявок.</p>
+                <button class="home-card-btn" data-go-tab="orderbook">Открыть стакан</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Вероятности</h3>
+                <p>Статистика роста, падения и боковика на выбранном периоде.</p>
+                <button class="home-card-btn" data-go-tab="probability">Открыть вероятности</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Новости</h3>
+                <p>Лента криптособытий. Позже этот блок можно глубже переработать под монеты и важность.</p>
+                <button class="home-card-btn" data-go-tab="news">Открыть новости</button>
+            </article>
+
+            <article class="home-card">
+                <h3>Обучение</h3>
+                <p>Пошаговые главы с текстами, иллюстрациями и анимациями.</p>
+                <button class="home-card-btn" data-go-tab="training">Открыть обучение</button>
+            </article>
+        </section>
+    </div>
+
+
+    <div class="tab-content" id="training-tab">
+        <div class="training-tab-shell">
+            <section class="training-tab-header">
+                <div>
+                    <h2>Обучение</h2>
+                    <p>Отдельный модуль с главами, иллюстрациями и анимациями. Открывается прямо внутри платформы.</p>
+                </div>
+                <a class="training-open-link" href="training-module/index.html" target="_blank" rel="noopener noreferrer">Открыть в новой вкладке</a>
+            </section>
+            <div class="training-frame-wrap">
+                <iframe
+                    id="trainingModuleFrame"
+                    title="Модуль обучения"
+                    src="training-module/index.html"
+                    loading="lazy"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка с графиком -->
+    <div class="tab-content" id="chart-tab">
+        <div class="controls">
+            <div class="chart-toolbar-group chart-toolbar-interval">
+                <label for="intervalSelect">Таймфрейм</label>
+                <select id="intervalSelect" aria-label="Таймфрейм">
+                    <option value="5m">5 мин</option>
+                    <option value="15m">15 мин</option>
+                    <option value="30m">30 мин</option>
+                    <option value="1h">1 час</option>
+                    <option value="1d">1 день</option>
+                </select>
+            </div>
+            <div class="chart-toolbar-group chart-toolbar-symbol">
+                <label for="cryptoSymbol">Монета</label>
+                <select id="cryptoSymbol">
+                    <option value="BTCUSDT">Bitcoin (BTC)</option>
+                    <option value="TRXUSDT">Tron (TRX)</option>
+                    <option value="ETHUSDT">Ethereum (ETH)</option>
+                    <option value="BNBUSDT">Binance Coin (BNB)</option>
+                    <option value="ADAUSDT">Cardano (ADA)</option>
+                    <option value="DOGEUSDT">Dogecoin (DOGE)</option>
+                    <option value="XRPUSDT">Ripple (XRP)</option>
+                    <option value="SOLUSDT">Solana (SOL)</option>
+                    <option value="HYPE">Hyperliquid (HYPE)</option>
+                    <option value="DOTUSDT">Polkadot (DOT)</option>
+                    <option value="MATICUSDT">Polygon (MATIC)</option>
+                    <option value="SUIUSDT">Sui (SUI)</option>
+                    <option value="AVAXUSDT">Avalanche (AVAX)</option>
+                    <option value="LINKUSDT">Chainlink (LINK)</option>
+                    <option value="PUMPUSDT">Pump.fun (PUMP)</option>
+                </select>
+            </div>
+            <div class="date-range">
+                <input type="date" id="startDate">
+                <input type="date" id="endDate">
+            </div>
+            <div class="chart-toolbar-group chart-toolbar-indicator">
+                <label for="indicatorSelect">Индикатор</label>
+                <select id="indicatorSelect">
+                    <option value="ma20">MA (20)</option>
+                    <option value="ema50">EMA (50)</option>
+                    <option value="rsi">RSI (14)</option>
+                    <option value="bollinger">Bollinger Bands</option>
+                    <option value="none">Без индикатора</option>
+                </select>
+            </div>
+            <div class="chart-toolbar-group chart-toolbar-drawing">
+                <label for="drawingToolSelect">Рисование</label>
+                <select id="drawingToolSelect" aria-label="Инструмент рисования">
+                    <option value="">Не выбрано</option>
+                    <option value="pencil">Карандаш</option>
+                    <option value="line">Прямая линия</option>
+                    <option value="eraser">Ластик</option>
+                </select>
+            </div>
+            <div class="chart-toolbar-actions">
+                <button id="indicatorHelpBtn" type="button" class="secondary-btn">Как понять индикатор?</button>
+                <button id="exportCSV" type="button">Экспорт CSV</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <!-- Графики будут добавлены здесь -->
+        </div>
+
+        <div id="candleInfo" class="candle-info">
+            <!-- Информация о свече будет добавлена здесь -->
+        </div>
+
+        <div id="indicatorInfoPanel" class="indicator-info-panel" style="display:none;">
+            <div class="indicator-info-head">
+                <div>
+                    <h3 id="indicatorInfoTitle">Как понять индикатор</h3>
+                    <p id="indicatorInfoSubtitle" class="indicator-info-subtitle"></p>
+                </div>
+                <button id="indicatorInfoClose" type="button" class="secondary-btn">Скрыть</button>
+            </div>
+            <div id="indicatorInfoBody" class="indicator-info-body"></div>
+        </div>
+
+        <div class="grid-bot-calculator">
+            <h3>Расчёт срабатываний</h3>
+            <div class="grid-inputs">
+                <div class="form-group">
+                    <label for="triggerMode">Режим</label>
+                    <select id="triggerMode">
+                        <option value="long">LONG</option>
+                        <option value="short">SHORT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="buyPrice">Нижний уровень</label>
+                    <input type="number" id="buyPrice" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="sellPrice">Верхний уровень</label>
+                    <input type="number" id="sellPrice" step="0.01">
+                </div>
+                <div class="grid-actions">
+                    <button id="calculateGrid">Рассчитать</button>
+                    <button id="clearGridCalculation" type="button" class="secondary-btn">Очистить расчет</button>
+                </div>
+            </div>
+
+            <div id="gridResult" class="grid-result"></div>
+
+            <div id="gridTradeLog" class="grid-trade-log">
+                <h4>Лог срабатываний</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Время</th>
+                            <th>Тип</th>
+                            <th>Цена</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridTradeLogBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка монитора -->
+    <div class="tab-content" id="monitor-tab">
+        <div class="monitor-container">
+            <div class="monitor-header">
+                <h2>Монитор криптовалют</h2>
+                <div class="monitor-controls">
+                    <button id="refreshMonitor">Обновить</button>
+                    <select id="monitorInterval">
+                        <option value="1m">1 минута</option>
+                        <option value="5m">5 минут</option>
+                        <option value="15m">15 минут</option>
+                        <option value="1h">1 час</option>
+                    </select>
+                </div>
+            </div>
+            <div class="monitor-grid">
+                <table id="monitorTable">
+                    <thead>
+                        <tr>
+                            <th>Пара</th>
+                            <th>Цена</th>
+                            <th>Изменение (24ч)</th>
+                            <th>Объем (24ч)</th>
+                            <th>Макс. цена</th>
+                            <th>Мин. цена</th>
+                            <th>RSI</th>
+                            <th>Тренд</th>
+                            <th>Волатильность (24ч)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monitorTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+            <!-- Вкладка Конвертера -->
+            <div class="tab-content" id="converter-tab">
+              <div id="crypto-converter">
+                <h3>Крипто-конвертер</h3>
+                <input type="number" id="cc-amount" placeholder="Сумма" value="1" />
+                <select id="cc-from"></select>
+                <button id="cc-swap">⇄</button>
+                <select id="cc-to"></select>
+                <button id="cc-convert">Конвертировать</button>
+                <button id="cc-auto">Автообновление</button>
+                <h3 id="cc-result">Результат: ...</h3>
+                <div class="converter-actions">
+                  <button id="cc-export">Экспорт истории</button>
+                  <button id="cc-clear">Очистить историю</button>
+                </div>
+                <div id="cc-history"><strong>История:</strong></div>
+              </div>
+            </div>
+
+            <!-- Вкладка Стакан -->
+            <div class="tab-content" id="orderbook-tab">
+              <div id="orderbook-container">
+                <h3>Биржевой стакан (Orderbook)</h3>
+                <div class="orderbook-info">
+                  <p><b>Стакан</b> — это таблица всех актуальных заявок на покупку (Bid) и продажу (Ask) по выбранной криптовалюте. Позволяет анализировать глубину рынка, плотности и крупные лимитные ордера.</p>
+                  <ul class="orderbook-hints">
+                    <li><b>Стена <span class="tooltip" title="Крупная заявка, объём которой превышает 10% от суммы всех заявок в стакане. Может указывать на сильный уровень поддержки или сопротивления.">?</span></b> — крупная лимитная заявка, выделяется цветом.</li>
+                    <li><b>Тепловая карта <span class="tooltip" title="Визуальное выделение плотности заявок цветом: чем насыщеннее цвет — тем больше объём.">?</span></b> — цветовое выделение плотных уровней.</li>
+                    <li><b>Спред <span class="tooltip" title="Разница между лучшей ценой покупки и продажи. Чем меньше спред — тем ликвиднее рынок.">?</span></b> — разница между лучшей ценой покупки и продажи.</li>
+                    <li><b>Ликвидность <span class="tooltip" title="Суммарный объём всех заявок на покупку или продажу в стакане.">?</span></b> — общий объём заявок на покупку/продажу.</li>
+                  </ul>
+                </div>
+                <div class="orderbook-controls">
+                  <label for="orderbook-symbol">Монета:</label>
+                  <select id="orderbook-symbol">
+                    <option value="BTCUSDT">BTC/USDT</option>
+                    <option value="ETHUSDT">ETH/USDT</option>
+                    <option value="BNBUSDT">BNB/USDT</option>
+                    <option value="TRXUSDT">TRX/USDT</option>
+                    <option value="ADAUSDT">ADA/USDT</option>
+                    <option value="DOGEUSDT">DOGE/USDT</option>
+                    <option value="XRPUSDT">XRP/USDT</option>
+                    <option value="SOLUSDT">SOL/USDT</option>
+                    <option value="DOTUSDT">DOT/USDT</option>
+                    <option value="MATICUSDT">MATIC/USDT</option>
+                    <option value="SUIUSDT">SUI/USDT</option>
+                    <option value="AVAXUSDT">AVAX/USDT</option>
+                    <option value="LINKUSDT">LINK/USDT</option>
+                  </select>
+                  <input type="number" id="orderbook-volume-filter" min="0" step="0.0001" placeholder="Мин. объём" style="width:110px" title="Показывать только заявки с объёмом больше этого значения">
+                  <button id="orderbook-refresh" title="Обновить стакан вручную">⟳ Обновить</button>
+                  <button id="orderbook-export" title="Экспортировать стакан в CSV">⬇️ Экспорт</button>
+                  <span id="orderbook-spread"></span>
+                </div>
+                <div class="orderbook-table-wrapper">
+                  <table id="orderbook-table">
+                    <thead>
+                      <tr>
+                        <th class="ask-col" colspan="3">Продажа (Ask)</th>
+                        <th></th>
+                        <th class="bid-col" colspan="3">Покупка (Bid)</th>
+                      </tr>
+                      <tr>
+                        <th class="ask-col">Цена</th>
+                        <th class="ask-col">Объём</th>
+                        <th class="ask-col">Кум. объём <span class="tooltip" title="Кумулятивный объём — сумма объёмов от лучшей цены до текущей строки.">?</span></th>
+                        <th></th>
+                        <th class="bid-col">Кум. объём <span class="tooltip" title="Кумулятивный объём — сумма объёмов от лучшей цены до текущей строки.">?</span></th>
+                        <th class="bid-col">Объём</th>
+                        <th class="bid-col">Цена</th>
+                      </tr>
+                    </thead>
+                    <tbody id="orderbook-body">
+                      <!-- Данные стакана будут подгружаться сюда -->
+                    </tbody>
+                  </table>
+                </div>
+                <div id="orderbook-indicators" class="orderbook-indicators">
+                  <!-- Индикаторы spread, ликвидность, VWAP и т.д. -->
+                </div>
+                <div id="orderbook-error" class="orderbook-error"></div>
+              </div>
+            </div>
+            <!-- Вкладка Вероятности движения -->
+            <div class="tab-content" id="probability-tab">
+              <div class="probability-container">
+                <h3>Вероятности движения</h3>
+                <form id="probability-form">
+                  <label for="probability-symbol">Монета:</label>
+                  <select id="probability-symbol-select" style="width:120px">
+                    <option value="BTCUSDT">BTCUSDT</option>
+                    <option value="ETHUSDT">ETHUSDT</option>
+                    <option value="BNBUSDT">BNBUSDT</option>
+                    <option value="TRXUSDT">TRXUSDT</option>
+                    <option value="ADAUSDT">ADAUSDT</option>
+                    <option value="DOGEUSDT">DOGEUSDT</option>
+                    <option value="XRPUSDT">XRPUSDT</option>
+                    <option value="SOLUSDT">SOLUSDT</option>
+                    <option value="DOTUSDT">DOTUSDT</option>
+                    <option value="MATICUSDT">MATICUSDT</option>
+                    <option value="SUIUSDT">SUIUSDT</option>
+                    <option value="AVAXUSDT">AVAXUSDT</option>
+                    <option value="LINKUSDT">LINKUSDT</option>
+                  </select>
+                  <input type="text" id="probability-symbol" value="BTCUSDT" style="width:90px" required placeholder="Другая монета">
+                  <label for="probability-interval">Интервал:</label>
+                  <select id="probability-interval">
+                    <option value="1m">1 мин</option>
+                    <option value="5m">5 мин</option>
+                    <option value="15m">15 мин</option>
+                    <option value="1h" selected>1 час</option>
+                    <option value="4h">4 часа</option>
+                    <option value="1d">1 день</option>
+                  </select>
+                  <label for="probability-start">Начало:</label>
+                  <input type="datetime-local" id="probability-start" required>
+                  <label for="probability-end">Конец:</label>
+                  <input type="datetime-local" id="probability-end" required>
+                  <button type="submit">Рассчитать</button>
+                </form>
+                <div id="probability-result" class="probability-result"></div>
+                <div id="probability-error" class="probability-error"></div>
+                <div id="probability-chart-container" style="max-width:320px;margin:18px auto 0 auto;display:none;">
+                  <canvas id="probability-chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <!-- Вкладка Новости по крипте -->
+            <div class="tab-content" id="news-tab">
+              <div class="news-container">
+                <div class="news-header">
+                  <div class="news-heading">
+                    <span class="news-kicker">Crypto Feed</span>
+                    <h3>Новости и события</h3>
+                    <p>Сводная лента по нескольким источникам с фильтрами, поиском и выделением важных событий рынка.</p>
+                  </div>
+                  <div class="news-actions">
+                    <label class="news-control">
+                      <span>Источник</span>
+                      <select id="newsSourceFilter" aria-label="Фильтр по источнику">
+                        <option value="all">Все источники</option>
+                      </select>
+                    </label>
+                    <label class="news-control news-search-control">
+                      <span>Поиск</span>
+                      <input type="search" id="newsSearchInput" placeholder="Например: ETF, listing, Bitcoin">
+                    </label>
+                    <label class="news-check" for="newsImportantOnly">
+                      <input type="checkbox" id="newsImportantOnly">
+                      <span>Только важные</span>
+                    </label>
+                    <button id="newsRefreshBtn" type="button" class="secondary-btn">Обновить ленту</button>
+                  </div>
+                </div>
+
+                <div class="news-metrics">
+                  <article class="news-metric-card">
+                    <span class="news-metric-label">Материалов</span>
+                    <strong class="news-metric-value" id="newsTotalCount">0</strong>
+                  </article>
+                  <article class="news-metric-card">
+                    <span class="news-metric-label">Важных</span>
+                    <strong class="news-metric-value" id="newsImportantCount">0</strong>
+                  </article>
+                  <article class="news-metric-card">
+                    <span class="news-metric-label">Источников</span>
+                    <strong class="news-metric-value" id="newsSourcesCount">0</strong>
+                  </article>
+                  <article class="news-metric-card">
+                    <span class="news-metric-label">Обновлено</span>
+                    <strong class="news-metric-value" id="newsUpdatedAt">-</strong>
+                  </article>
+                </div>
+
+                <div id="news-error" class="news-error" hidden></div>
+                <div id="news-status" class="news-status">Открой вкладку или нажми обновление, чтобы загрузить свежую ленту.</div>
+                <div id="news-list" class="news-list"></div>
+              </div>
+            </div>
+
+            <div class="tab-content" id="liquidations-tab">
+              <div class="liquidation-container">
+                <div class="liquidation-header">
+                  <div class="liquidation-heading">
+                    <span class="liquidation-kicker">Liquidation Pulse</span>
+                    <h3>Ликвидации рынка</h3>
+                    <p>Живая лента ликвидаций по выбранной монете, сводка по LONG/SHORT и ключевые фьючерсные метрики без перехода в сторонние сервисы.</p>
+                  </div>
+                  <div class="liquidation-actions">
+                    <label class="liquidation-control">
+                      <span>Монета</span>
+                      <select id="liquidationSymbolSelect" aria-label="Монета ликвидаций">
+                        <option value="ETHUSDT">Ethereum (ETH)</option>
+                        <option value="BTCUSDT">Bitcoin (BTC)</option>
+                        <option value="SOLUSDT">Solana (SOL)</option>
+                        <option value="XRPUSDT">Ripple (XRP)</option>
+                        <option value="TRXUSDT">Tron (TRX)</option>
+                        <option value="BNBUSDT">Binance Coin (BNB)</option>
+                        <option value="ADAUSDT">Cardano (ADA)</option>
+                        <option value="DOGEUSDT">Dogecoin (DOGE)</option>
+                        <option value="LINKUSDT">Chainlink (LINK)</option>
+                        <option value="AVAXUSDT">Avalanche (AVAX)</option>
+                      </select>
+                    </label>
+                    <label class="liquidation-control">
+                      <span>Окно</span>
+                      <select id="liquidationWindowSelect" aria-label="Окно агрегации">
+                        <option value="15">15 минут</option>
+                        <option value="60" selected>1 час</option>
+                        <option value="240">4 часа</option>
+                        <option value="1440">24 часа</option>
+                      </select>
+                    </label>
+                    <button id="liquidationRefreshBtn" type="button" class="secondary-btn">Обновить данные</button>
+                  </div>
+                </div>
+
+                <div class="liquidation-metrics">
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Всего ликвидировано"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Общая сумма ликвидаций по выбранной монете за текущее окно. Ниже показывается количество событий и самая крупная ликвидация.
+                    </div>
+                    <span class="liquidation-metric-label">Всего ликвидировано</span>
+                    <strong class="liquidation-metric-value" id="liquidationEventsCount">0 $</strong>
+                    <span class="liquidation-metric-subvalue" id="liquidationTotalBreakdown">Событий: 0 • Крупнейшая: -</span>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель LONG ликвидировано"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Суммарный объем ликвидированных LONG-позиций в долларах за текущее окно.
+                    </div>
+                    <span class="liquidation-metric-label">LONG ликвидировано</span>
+                    <strong class="liquidation-metric-value" id="liquidationLongValue">0 $</strong>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель SHORT ликвидировано"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Суммарный объем ликвидированных SHORT-позиций в долларах за текущее окно.
+                    </div>
+                    <span class="liquidation-metric-label">SHORT ликвидировано</span>
+                    <strong class="liquidation-metric-value" id="liquidationShortValue">0 $</strong>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Open Interest"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Суммарный открытый интерес по фьючерсам Binance и Bybit. Ниже показывается разбивка по каждой бирже отдельно.
+                    </div>
+                    <span class="liquidation-metric-label">Open Interest</span>
+                    <strong class="liquidation-metric-value" id="liquidationOpenInterest">-</strong>
+                    <span class="liquidation-metric-subvalue" id="liquidationOpenInterestBreakdown">Binance: - • Bybit: -</span>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Top Trader L/S"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Соотношение LONG и SHORT у топ-трейдеров Binance. Внизу показывается разбивка по позициям и по аккаунтам.
+                    </div>
+                    <span class="liquidation-metric-label">Top Trader L/S</span>
+                    <strong class="liquidation-metric-value" id="liquidationLongShortRatio">-</strong>
+                    <span class="liquidation-metric-subvalue" id="liquidationLongShortBreakdown">Позиции: - • Аккаунты: -</span>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Funding Rate"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Текущая ставка фондирования по perpetual-фьючерсам. Ниже показывается разбивка Binance и Bybit.
+                    </div>
+                    <span class="liquidation-metric-label">Funding Rate</span>
+                    <strong class="liquidation-metric-value" id="liquidationFundingRate">-</strong>
+                    <span class="liquidation-metric-subvalue" id="liquidationFundingBreakdown">Binance: - • Bybit: -</span>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Taker B/S"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Отношение taker buy к taker sell по Binance Futures за последние 5 минут. Если значение выше 1, агрессивные покупки сильнее.
+                    </div>
+                    <span class="liquidation-metric-label">Taker B/S</span>
+                    <strong class="liquidation-metric-value" id="liquidationTakerRatio">-</strong>
+                    <span class="liquidation-metric-subvalue" id="liquidationTakerBreakdown">Buy: - • Sell: -</span>
+                  </article>
+                  <article class="liquidation-metric-card">
+                    <button
+                      type="button"
+                      class="liquidation-metric-help"
+                      aria-label="Что означает показатель Доминирует"
+                      aria-expanded="false"
+                    >?</button>
+                    <div class="liquidation-metric-tooltip" role="tooltip" hidden>
+                      Показывает, какая сторона ликвидировалась сильнее в текущем окне: LONG или SHORT.
+                    </div>
+                    <span class="liquidation-metric-label">Доминирует</span>
+                    <strong class="liquidation-metric-value" id="liquidationDominantSide">-</strong>
+                  </article>
+                </div>
+
+                <section class="liquidation-money-section">
+                  <div class="liquidation-money-header">
+                    <div>
+                      <h4>Денежные срезы ликвидаций</h4>
+                      <p>Суммы по live-ленте Binance и Bybit за разные окна времени по выбранной монете.</p>
+                    </div>
+                  </div>
+                  <div class="liquidation-money-grid" id="liquidationMoneyGrid"></div>
+                </section>
+
+                <section class="liquidation-money-section">
+                  <div class="liquidation-money-header">
+                    <div>
+                      <h4>Суммы по биржам</h4>
+                      <p>Разбивка ликвидаций по Binance и Bybit за текущее выбранное окно.</p>
+                    </div>
+                  </div>
+                  <div class="liquidation-exchange-grid" id="liquidationExchangeGrid"></div>
+                </section>
+
+                <div class="liquidation-status-row">
+                  <div class="liquidation-source-status" id="liquidationSourceStatus">
+                    <span class="liquidation-source-pill" data-source="binance">Binance: ожидание</span>
+                    <span class="liquidation-source-pill" data-source="bybit">Bybit: ожидание</span>
+                  </div>
+                  <div id="liquidationUpdatedAt" class="liquidation-updated-at">Обновление: -</div>
+                </div>
+
+                <div id="liquidationError" class="liquidation-error" hidden></div>
+                <div id="liquidationStatus" class="liquidation-status">Открой вкладку или нажми обновление, чтобы запустить блок ликвидаций.</div>
+
+                <div class="liquidation-feed-wrap">
+                  <table class="liquidation-feed-table">
+                    <thead>
+                      <tr>
+                        <th>Время</th>
+                        <th>Источник</th>
+                        <th>Монета</th>
+                        <th>Ликвидировано</th>
+                        <th>Цена</th>
+                        <th>Размер</th>
+                        <th>Объем</th>
+                      </tr>
+                    </thead>
+                    <tbody id="liquidationFeedBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-content" id="analytics-tab">
+              <div class="analytics-container">
+                <div class="analytics-header">
+                  <div class="analytics-heading">
+                    <span class="analytics-kicker">Market Bias Engine</span>
+                    <h3>Аналитика</h3>
+                    <p>Вероятностная оценка движения монеты на основе тренда, импульса, фьючерсного сентимента и ликвидности. Это не предсказание цены, а рабочий bias по рынку.</p>
+                  </div>
+                  <div class="analytics-actions">
+                    <label class="analytics-control">
+                      <span>Монета</span>
+                      <select id="analyticsSymbolSelect" aria-label="Монета аналитики">
+                        <option value="ETHUSDT">Ethereum (ETH)</option>
+                        <option value="BTCUSDT">Bitcoin (BTC)</option>
+                        <option value="SOLUSDT">Solana (SOL)</option>
+                        <option value="XRPUSDT">Ripple (XRP)</option>
+                        <option value="TRXUSDT">Tron (TRX)</option>
+                        <option value="BNBUSDT">Binance Coin (BNB)</option>
+                        <option value="ADAUSDT">Cardano (ADA)</option>
+                        <option value="DOGEUSDT">Dogecoin (DOGE)</option>
+                        <option value="LINKUSDT">Chainlink (LINK)</option>
+                        <option value="AVAXUSDT">Avalanche (AVAX)</option>
+                      </select>
+                    </label>
+                    <label class="analytics-control">
+                      <span>Горизонт</span>
+                      <select id="analyticsHorizonSelect" aria-label="Горизонт аналитики">
+                        <option value="15m">15 минут</option>
+                        <option value="1h" selected>1 час</option>
+                        <option value="4h">4 часа</option>
+                        <option value="1d">24 часа</option>
+                      </select>
+                    </label>
+                    <button id="analyticsRefreshBtn" type="button" class="secondary-btn">Обновить аналитику</button>
+                    <button
+                      id="analyticsSnapshotRefreshBtn"
+                      type="button"
+                      class="secondary-btn"
+                      title="Запустить обновление macro-snapshot.json через GitHub Actions"
+                    >Обновить macro snapshot</button>
+                  </div>
+                </div>
+
+                <div class="analytics-hero-grid">
+                  <article class="analytics-hero-card analytics-hero-main">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по сценарию">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Итоговый сценарий показывает общий перекос рынка после объединения всех сигналов: тренд, импульс, фьючерсы, ликвидность, ликвидации и макро-фон.
+                    </div>
+                    <span class="analytics-hero-label">Сценарий</span>
+                    <strong class="analytics-hero-value" id="analyticsScenarioValue">NEUTRAL</strong>
+                    <span class="analytics-hero-subvalue" id="analyticsScenarioHint">Смешанный рынок, ждем подтверждение.</span>
+                  </article>
+                  <article class="analytics-hero-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по силе сигнала">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Сила сигнала это нормированная оценка от 0 до 100: чем выше число, тем более выражен текущий рыночный перекос.
+                    </div>
+                    <span class="analytics-hero-label">Сила сигнала</span>
+                    <strong class="analytics-hero-value" id="analyticsScoreValue">0 / 100</strong>
+                    <span class="analytics-hero-subvalue" id="analyticsRiskValue">Риск: средний</span>
+                  </article>
+                  <article class="analytics-hero-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по вероятностям">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Оценка вероятностей трех режимов на выбранном горизонте: рост, падение и боковое движение.
+                    </div>
+                    <span class="analytics-hero-label">Рост / Падение / Флэт</span>
+                    <strong class="analytics-hero-value analytics-hero-triple" id="analyticsProbabilitiesValue">33% / 34% / 33%</strong>
+                    <span class="analytics-hero-subvalue" id="analyticsDominantPath">Доминирует: нейтральный сценарий</span>
+                  </article>
+                </div>
+
+                <div class="analytics-signal-grid">
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по тренду">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Трендовый блок смотрит структуру цены относительно EMA20, EMA50 и EMA200 и оценивает устойчивость направления.
+                    </div>
+                    <span class="analytics-signal-label">Тренд</span>
+                    <strong class="analytics-signal-value" id="analyticsTrendScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsTrendText">Нет данных</span>
+                  </article>
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по импульсу">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Импульс оценивает RSI, скорость движения цены и изменение объема относительно среднего.
+                    </div>
+                    <span class="analytics-signal-label">Импульс</span>
+                    <strong class="analytics-signal-value" id="analyticsMomentumScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsMomentumText">Нет данных</span>
+                  </article>
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по фьючерсам">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Фьючерсный сентимент агрегирует Binance и Bybit: funding, open interest, дельту OI и соотношения LONG/SHORT.
+                    </div>
+                    <span class="analytics-signal-label">Фьючерсный сентимент</span>
+                    <strong class="analytics-signal-value" id="analyticsFuturesScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsFuturesText">Нет данных</span>
+                  </article>
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по ликвидности">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Ликвидность/стакан показывает дисбаланс Bid/Ask в верхних уровнях книги ордеров.
+                    </div>
+                    <span class="analytics-signal-label">Ликвидность / стакан</span>
+                    <strong class="analytics-signal-value" id="analyticsLiquidityScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsLiquidityText">Нет данных</span>
+                  </article>
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по ликвидациям">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Блок ликвидаций использует свежие события из ленты и оценивает, какую сторону рынка выбивает чаще и на какие суммы.
+                    </div>
+                    <span class="analytics-signal-label">Ликвидации</span>
+                    <strong class="analytics-signal-value" id="analyticsLiquidationScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsLiquidationText">Нет данных</span>
+                  </article>
+                  <article class="analytics-signal-card">
+                    <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по макро-фону">?</button>
+                    <div class="analytics-help-tooltip" role="tooltip" hidden>
+                      Макро-фон учитывает NDX, Brent и CPI, чтобы понять режим risk-on или risk-off для крипторынка.
+                    </div>
+                    <span class="analytics-signal-label">Макро-фон</span>
+                    <strong class="analytics-signal-value" id="analyticsMacroScore">0</strong>
+                    <span class="analytics-signal-subvalue" id="analyticsMacroText">Нет данных</span>
+                  </article>
+                </div>
+
+                <section class="analytics-panel analytics-macro-panel">
+                  <div class="analytics-macro-head">
+                    <div>
+                      <h4>Макро-контекст</h4>
+                      <p id="analyticsMacroSummary">Подключаю NDX, Brent и CPI для оценки общего risk-on / risk-off режима.</p>
+                    </div>
+                    <span class="analytics-macro-badge" id="analyticsMacroSummaryHint">Macro: neutral</span>
+                  </div>
+                  <div class="analytics-macro-grid">
+                    <article class="analytics-macro-card">
+                      <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по NDX">?</button>
+                      <div class="analytics-help-tooltip" role="tooltip" hidden>
+                        Индекс Nasdaq 100 отражает аппетит к риску в технологическом секторе. Часто позитивный NDX поддерживает криптоактивы.
+                      </div>
+                      <span>Nasdaq 100 (NDX)</span>
+                      <strong id="analyticsMacroNdxValue">-</strong>
+                      <small id="analyticsMacroNdxText">Нет данных</small>
+                    </article>
+                    <article class="analytics-macro-card">
+                      <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по Brent">?</button>
+                      <div class="analytics-help-tooltip" role="tooltip" hidden>
+                        Brent помогает отслеживать инфляционное и геополитическое давление. Резкий рост нефти может усиливать risk-off.
+                      </div>
+                      <span>Brent Crude Oil</span>
+                      <strong id="analyticsMacroBrentValue">-</strong>
+                      <small id="analyticsMacroBrentText">Нет данных</small>
+                    </article>
+                    <article class="analytics-macro-card">
+                      <button type="button" class="analytics-help-btn" aria-expanded="false" aria-label="Подсказка по CPI">?</button>
+                      <div class="analytics-help-tooltip" role="tooltip" hidden>
+                        CPI показывает инфляцию в США. Ускорение CPI обычно ухудшает ожидания по рисковым активам, замедление поддерживает их.
+                      </div>
+                      <span>CPI</span>
+                      <strong id="analyticsMacroCpiValue">-</strong>
+                      <small id="analyticsMacroCpiText">Нет данных</small>
+                    </article>
+                  </div>
+                </section>
+
+                <div class="analytics-lower-grid">
+                  <section class="analytics-panel">
+                    <h4>Почему блок так думает</h4>
+                    <div class="analytics-contrib-wrap">
+                      <div class="analytics-contrib-head">
+                        <strong>Вклад сигналов</strong>
+                        <span id="analyticsRegimeLabel">Режим: neutral</span>
+                      </div>
+                      <div class="analytics-contrib-bars" id="analyticsContributionBars">
+                        <div class="analytics-empty">Диаграмма вклада появится после расчета.</div>
+                      </div>
+                    </div>
+                    <div class="analytics-reasons-list" id="analyticsReasonsList">
+                      <div class="analytics-empty">Собираю сигналы для аналитики...</div>
+                    </div>
+                  </section>
+
+                  <section class="analytics-panel">
+                    <h4>Ключевые уровни</h4>
+                    <div class="analytics-levels-grid">
+                      <article class="analytics-level-card">
+                        <span>Поддержка</span>
+                        <strong id="analyticsSupportValue">-</strong>
+                      </article>
+                      <article class="analytics-level-card">
+                        <span>Сопротивление</span>
+                        <strong id="analyticsResistanceValue">-</strong>
+                      </article>
+                      <article class="analytics-level-card">
+                        <span>Диапазон дня</span>
+                        <strong id="analyticsRangeValue">-</strong>
+                      </article>
+                      <article class="analytics-level-card">
+                        <span>Текущая цена</span>
+                        <strong id="analyticsCurrentPriceValue">-</strong>
+                      </article>
+                    </div>
+                  </section>
+                </div>
+
+                <div id="analyticsStatus" class="analytics-status">Открой вкладку или нажми обновление, чтобы посчитать аналитику.</div>
+                <div id="analyticsError" class="analytics-error" hidden></div>
+                <div class="analytics-updated-at" id="analyticsUpdatedAt">Обновление: -</div>
+              </div>
+            </div>
+        
+            <!-- Вкладка Риск -->
+            <div class="tab-content" id="risk-tab">
+              <div class="risk-shell">
+                <div class="risk-hero">
+                  <h2>Риск-терминал</h2>
+                  <p>Здесь можно считать риск по позиции, работать с лестницей ордеров и вести отдельные журналы по каждой монете.</p>
+                </div>
+
+                <div class="risk-tabs">
+                  <button class="risk-tab-btn active" data-risk-tab="single">Калькулятор позиции</button>
+                  <button class="risk-tab-btn" data-risk-tab="orders">Стратегии</button>
+                  <div class="risk-more-wrap">
+                    <button class="risk-tab-btn risk-more-toggle" type="button" id="riskMoreToggle" aria-expanded="false">Еще</button>
+                    <div class="risk-more-menu" id="riskMoreMenu" hidden>
+                      <button class="risk-tab-btn risk-more-item" type="button" data-risk-tab="ladder">Лестница</button>
+                    </div>
+                  </div>
+                </div>
+
+                <section class="risk-tab-panel active" id="risk-single-panel">
+                  <div class="risk-dashboard-grid">
+                    <div class="risk-panel">
+                      <h3>Калькулятор позиции</h3>
+                      <div class="risk-form-grid">
+                        <div>
+                          <label for="positionMode">Режим</label>
+                          <select id="positionMode">
+                            <option value="isolated">Без кросса</option>
+                            <option value="cross">Кросс</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label for="side">Направление</label>
+                          <select id="side">
+                            <option value="long">LONG</option>
+                            <option value="short">SHORT</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label for="entry">Цена входа</label>
+                          <input type="number" id="entry" value="2000">
+                        </div>
+                        <div>
+                          <label for="deposit">Депозит</label>
+                          <input type="number" id="deposit" value="10000">
+                        </div>
+                        <div>
+                          <label for="leverage">Плечо</label>
+                          <input type="range" min="1" max="50" value="10" id="leverage">
+                          <div id="levValue" class="risk-helper-text"></div>
+                        </div>
+                      </div>
+
+                      <div id="singleModeInfo" class="risk-mode-info"></div>
+
+                      <div id="singleCrossFields" class="risk-cross-box" hidden>
+                        <div class="risk-form-grid">
+                          <div>
+                            <label for="maxPrice">Цена максимального риска</label>
+                            <input type="number" id="maxPrice" placeholder="Введи свою цену риска">
+                            <div id="maxPriceAutoHint" class="risk-helper-text risk-inline-hint"></div>
+                          </div>
+                        </div>
+                        <p class="risk-panel-note">В режиме кросс калькулятор использует вход, депозит, плечо и направление выше, чтобы показать, сколько дополнительной защиты нужно до выбранного уровня риска.</p>
+                      </div>
+                    </div>
+
+                    <div class="risk-panel">
+                      <h3 id="singleSummaryTitle">Итог позиции</h3>
+                      <div class="risk-stats-grid two" id="singleStatsGrid">
+                        <div class="risk-stat-card">
+                          <div class="risk-stat-label">Номинал позиции</div>
+                          <div class="risk-stat-value"><span id="size">-</span> $</div>
+                        </div>
+                        <div class="risk-stat-card">
+                          <div class="risk-stat-label">Ликвидация</div>
+                          <div class="risk-stat-value"><span id="liq">-</span></div>
+                        </div>
+                        <div class="risk-stat-card" data-cross-only hidden>
+                          <div class="risk-stat-label">Нужно обеспечения</div>
+                          <div class="risk-stat-value"><span id="requiredCollateral">-</span> $</div>
+                        </div>
+                        <div class="risk-stat-card" data-cross-only hidden>
+                          <div class="risk-stat-label">Общая защита позиции</div>
+                          <div class="risk-stat-value"><span id="requiredProtection">-</span> $</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="risk-tab-panel" id="risk-ladder-panel">
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3>Лестница ордеров</h3>
+                        <p class="risk-panel-note">Добавляй свои уровни старт/продажа, бюджет, плечо и комментарий. Срабатывания считаются автоматически по выбранной монете и диапазону дат.</p>
+                      </div>
+                    </div>
+                    <div class="risk-form-grid four risk-ladder-config-grid">
+                      <div>
+                        <label for="ladderSymbol">Монета</label>
+                        <select id="ladderSymbol">
+                          <option value="ETHUSDT">Ethereum (ETH)</option>
+                          <option value="BTCUSDT">Bitcoin (BTC)</option>
+                          <option value="SOLUSDT">Solana (SOL)</option>
+                          <option value="XRPUSDT">Ripple (XRP)</option>
+                          <option value="TRXUSDT">Tron (TRX)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label for="ladderDateStart">Дата начала</label>
+                        <input type="date" id="ladderDateStart">
+                      </div>
+                      <div>
+                        <label for="ladderTimeStart">Время начала</label>
+                        <input type="time" id="ladderTimeStart" step="60">
+                      </div>
+                      <div>
+                        <label for="ladderDateEnd">Дата конца</label>
+                        <input type="date" id="ladderDateEnd">
+                      </div>
+                    </div>
+                    <div class="risk-actions">
+                      <button id="ladderAddRowBtn" type="button">Добавить ордер</button>
+                      <button id="ladderRefreshBtn" type="button" class="risk-ghost-btn">Обновить срабатывания</button>
+                    </div>
+                  </div>
+
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3 id="ladderJournalTabsTitle">Журналы ETH</h3>
+                        <div id="ladderJournalTabsMeta" class="risk-helper-text">Внутри монеты можно вести несколько отдельных журналов лестницы.</div>
+                      </div>
+                      <div class="risk-orders-tools">
+                        <button id="addLadderJournalBtn" type="button" class="risk-small-btn">Добавить еще журнал</button>
+                        <button id="deleteLadderJournalBtn" type="button" class="risk-danger-btn">Удалить текущий журнал</button>
+                      </div>
+                    </div>
+                    <div id="ladderJournalTabs" class="risk-strategy-tabs risk-journal-tabs"></div>
+                  </div>
+
+                  <div class="risk-stats-grid five risk-ladder-stats-grid">
+                    <div class="risk-stat-card"><div class="risk-stat-label">Ордеров в таблице</div><div class="risk-stat-value" id="ladderSummaryRows">0</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Общий бюджет</div><div class="risk-stat-value" id="ladderSummaryBudget">0.00 $</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Прибыль за 1 круг</div><div class="risk-stat-value" id="ladderSummaryCycleProfit">0.00 $</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Всего срабатываний</div><div class="risk-stat-value" id="ladderSummaryTriggers">0</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Прибыль общая</div><div class="risk-stat-value" id="ladderSummaryTotalProfit">0.00 $</div></div>
+                  </div>
+
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3 id="ladderTableTitle">Таблица ордеров</h3>
+                        <div id="ladderStatus" class="risk-helper-text">Подготовь уровни и выбери даты, чтобы посчитать срабатывания.</div>
+                      </div>
+                    </div>
+                    <div id="ladderResult"></div>
+                  </div>
+                </section>
+
+                <section class="risk-tab-panel" id="risk-orders-panel">
+                  <div class="risk-panel risk-full risk-collapsible-panel" id="ordersDashboardPanel">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3>Дашборд стратегий</h3>
+                        <p class="risk-panel-note">У каждой монеты может быть несколько отдельных журналов ордеров. Ниже видно состояние по активной монете, по каждой монете и общий итог по всем монетам сразу.</p>
+                      </div>
+                      <div class="risk-orders-tools">
+                        <button
+                          id="toggleOrdersDashboardBtn"
+                          type="button"
+                          class="risk-ghost-btn risk-collapse-btn"
+                          aria-expanded="true"
+                          aria-controls="ordersDashboardContent"
+                        >Скрыть дашборд</button>
+                        <div id="ordersStrategyTabs" class="risk-strategy-tabs"></div>
+                      </div>
+                    </div>
+
+                    <div id="ordersDashboardContent" class="risk-dashboard-content">
+                      <div class="risk-stats-grid four">
+                        <div class="risk-stat-card"><div class="risk-stat-label">Монет с ордерами</div><div class="risk-stat-value"><span id="ordersStrategiesActive">0</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Всего открытых ордеров</div><div class="risk-stat-value"><span id="ordersTotalOpenCount">0</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Общий нереализованный PnL</div><div class="risk-stat-value"><span id="ordersTotalOpenPnl">0.00 $</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Общий реализованный PnL</div><div class="risk-stat-value"><span id="ordersTotalClosedPnl">0.00 $</span></div></div>
+                      </div>
+
+                      <div id="ordersStrategiesSummary"></div>
+                    </div>
+                  </div>
+
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3 id="journalTabsTitle">Журналы ETH</h3>
+                        <div id="journalTabsMeta" class="risk-helper-text">Внутри монеты можно вести несколько отдельных журналов со своими ордерами.</div>
+                      </div>
+                      <div id="ordersJournalTabs" class="risk-strategy-tabs risk-journal-tabs"></div>
+                    </div>
+                  </div>
+
+                  <div class="risk-dashboard-grid">
+                    <div class="risk-panel">
+                      <h3 id="orderFormTitle">Новый ордер · ETH</h3>
+                      <div class="risk-form-grid three">
+                        <div><label for="orderSide">Направление</label><select id="orderSide"><option value="long">LONG</option><option value="short">SHORT</option></select></div>
+                        <div><label for="orderEntry">Точка входа</label><input type="number" id="orderEntry" value="1900" step="0.01"></div>
+                        <div><label for="orderExit">Точка выхода (если закрыто)</label><input type="number" id="orderExit" placeholder="Оставь пустым для открытого ордера" step="0.01"></div>
+                        <div><label for="orderLeverage">Плечо</label><input type="number" id="orderLeverage" value="10" step="0.1"></div>
+                        <div><label for="orderDeposit">Депозит / маржа ($)</label><input type="number" id="orderDeposit" value="1000" step="0.01"></div>
+                        <div><label for="orderNote">Комментарий</label><input type="text" id="orderNote" placeholder="Например: добор от уровня 1900"></div>
+                      </div>
+                      <div class="risk-actions risk-orders-actions">
+                        <button id="addOrderBtn" type="button">Добавить ордер</button>
+                        <button id="cancelEditOrderBtn" type="button" class="risk-ghost-btn" style="display:none;">Отменить редактирование</button>
+                        <button id="clearOrdersBtn" type="button" class="risk-ghost-btn">Очистить всё</button>
+                      </div>
+                      <p class="risk-panel-note" id="ordersFormNote">Если точка выхода пустая, ордер считается открытым и PnL считается от текущего курса ETH. Если точка выхода заполнена, ордер считается закрытым и PnL фиксируется по цене выхода.</p>
+                    </div>
+
+                    <div class="risk-panel">
+                      <h3 id="strategySummaryTitle">Сводка по ETH</h3>
+                      <div class="risk-stats-grid two">
+                        <div class="risk-stat-card"><div class="risk-stat-label" id="strategyCurrentPriceLabel">Текущий курс ETH</div><div class="risk-stat-value"><span id="strategyCurrentPrice">-</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Открытых ордеров</div><div class="risk-stat-value"><span id="ordersOpenCount">0</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Нереализованный PnL</div><div class="risk-stat-value"><span id="ordersOpenPnl">0.00 $</span></div></div>
+                        <div class="risk-stat-card"><div class="risk-stat-label">Реализованный PnL</div><div class="risk-stat-value"><span id="ordersClosedPnl">0.00 $</span></div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3 id="ordersJournalTitle">Журнал ордеров ETH</h3>
+                        <div id="ordersPriceStatus" class="risk-helper-text">Загрузка текущего курса ETH...</div>
+                      </div>
+                      <div class="risk-helper-text">Строки можно перетягивать, чтобы менять порядок ордеров внутри активного журнала.</div>
+                    </div>
+                    <div id="ordersTableWrap"></div>
+                    <div class="risk-actions">
+                      <button id="addJournalBtn" type="button">Добавить еще журнал</button>
+                      <button id="deleteJournalBtn" type="button" class="risk-danger-btn">Удалить текущий журнал</button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Затем наши скрипты -->
+    <script src="tabs.js?v=6"></script>
+    <script src="arbitrage.js?v=6"></script>
+    <script src="script.js?v=13"></script>
+    <script src="monitor.js?v=6"></script>
+    <script src="risk.js?v=6"></script>
+   <script>
+    // --- Логика крипто-конвертера ---
+    (function() {
+        if (!document.getElementById('crypto-converter')) return;
+
+        const symbols = ["BTC", "ETH", "XRP", "BNB", "SOL", "ADA", "SUI", "LINK", "XLM", "AVAX", "TON", "LTC", "DOT", "USDT", "USDC", "RUB", "USD", "EUR"];
+        const fiatSymbols = ["RUB", "USD", "EUR"];
+
+        const amountInput = document.getElementById('cc-amount');
+        const fromSelect = document.getElementById('cc-from');
+        const toSelect = document.getElementById('cc-to');
+        const swapBtn = document.getElementById('cc-swap');
+        const convertBtn = document.getElementById('cc-convert');
+        const autoBtn = document.getElementById('cc-auto');
+        const resultEl = document.getElementById('cc-result');
+        const exportBtn = document.getElementById('cc-export');
+        const clearBtn = document.getElementById('cc-clear');
+        const historyEl = document.getElementById('cc-history');
+
+        let autoUpdateInterval = null;
+
+        // --- Инициализация ---
+        function init() {
+            symbols.forEach(sym => {
+                fromSelect.add(new Option(sym, sym));
+                toSelect.add(new Option(sym, sym));
+            });
+            fromSelect.value = "BTC";
+            toSelect.value = "USDT";
+
+            renderHistory();
+            convert();
+
+            // Event Listeners
+            convertBtn.addEventListener('click', convert);
+            swapBtn.addEventListener('click', swapCurrencies);
+            autoBtn.addEventListener('click', toggleAutoUpdate);
+            clearBtn.addEventListener('click', clearHistory);
+            exportBtn.addEventListener('click', exportHistory);
+        }
+
+        // --- Логика API и конвертации ---
+        async function getPrice(from, to) {
+            const symbol = from + to;
+            try {
+                const json = typeof window.fetchBinanceJson === 'function'
+                    ? await window.fetchBinanceJson(`/api/v3/ticker/price?symbol=${symbol}`)
+                    : await (async () => {
+                        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+                        if (!res.ok) return null;
+                        return res.json();
+                    })();
+                if (!json) return null;
+                return parseFloat(json.price);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function convert() {
+            const amount = parseFloat(amountInput.value) || 1;
+            const from = fromSelect.value;
+            const to = toSelect.value;
+
+            if (from === to) {
+                resultEl.textContent = `Результат: ${amount} ${from}`;
+                return;
+            }
+
+            resultEl.textContent = 'Получение курса...';
+
+            try {
+                let rate = await getPrice(from, to);
+                let result;
+
+                if (rate) {
+                    result = amount * rate;
+                } else {
+                    const inverseRate = await getPrice(to, from);
+                    if (inverseRate) {
+                        result = amount / inverseRate;
+                    } else {
+                        throw new Error('Пара не найдена');
+                    }
+                }
+
+                resultEl.textContent = `Результат: ${result.toFixed(6)} ${to}`;
+                saveHistory(`${amount} ${from} = ${result.toFixed(6)} ${to}`);
+            } catch (e) {
+                resultEl.textContent = 'Ошибка: пара не найдена.';
+            }
+        }
+
+        function swapCurrencies() {
+            [fromSelect.value, toSelect.value] = [toSelect.value, fromSelect.value];
+            convert();
+        }
+
+        function toggleAutoUpdate() {
+            if (autoUpdateInterval) {
+                clearInterval(autoUpdateInterval);
+                autoUpdateInterval = null;
+                autoBtn.textContent = 'Автообновление';
+                autoBtn.style.backgroundColor = 'var(--primary-color)';
+            } else {
+                autoUpdateInterval = setInterval(convert, 10000);
+                autoBtn.textContent = 'Остановить';
+                autoBtn.style.backgroundColor = '#f44336'; // Crimson-like red
+            }
+        }
+
+        // --- Управление историей ---
+        function getHistory() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem('ccHistory') || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                localStorage.removeItem('ccHistory');
+                return [];
+            }
+        }
+
+        function saveHistory(entry) {
+            let history = getHistory();
+            history.unshift(entry);
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            localStorage.setItem('ccHistory', JSON.stringify(history));
+            renderHistory();
+        }
+        
+        function renderHistory() {
+            const history = getHistory();
+            historyEl.replaceChildren();
+
+            const title = document.createElement('strong');
+            title.textContent = 'История:';
+            historyEl.appendChild(title);
+            historyEl.appendChild(document.createElement('br'));
+
+            history.forEach((entry) => {
+                const row = document.createElement('div');
+                row.textContent = entry;
+                historyEl.appendChild(row);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('ccHistory');
+            renderHistory();
+        }
+
+        function exportHistory() {
+            const history = getHistory().join('\\n');
+            const blob = new Blob([history], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'conversion_history.txt';
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        init();
+    })();
+    </script>
+</body>
+</html> 
