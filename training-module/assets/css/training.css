@@ -1,5 +1,48 @@
+:root {
+  --training-bg: #f3f7fc;
+  --training-text: #1f2937;
+  --training-muted: #6b7280;
+  --training-card-bg: #ffffff;
+  --training-card-border: rgba(13, 110, 253, 0.15);
+  --training-soft-bg: #eef4ff;
+  --training-primary: #9d4749;
+  --training-primary-hover: #86393c;
+  --training-link: #0d6efd;
+  --training-mark-bg: #fff2a8;
+  --training-mark-text: #2a2a2a;
+}
+
+html[data-training-theme='dark'] {
+  --training-bg: #0d0c0d;
+  --training-text: #e9ecef;
+  --training-muted: #a79c9a;
+  --training-card-bg: #141315;
+  --training-card-border: #2a2628;
+  --training-soft-bg: #1a191c;
+  --training-primary: #9b4648;
+  --training-primary-hover: #7e383b;
+  --training-link: #d3ced0;
+  --training-mark-bg: rgba(155, 70, 72, 0.28);
+  --training-mark-text: #f2ddde;
+}
+
 body {
-  background: #f3f7fc;
+  background: var(--training-bg);
+  color: var(--training-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html[data-training-theme='dark'] body {
+  background-image: linear-gradient(145deg, #0d0c0d 0%, #111012 34%, #151418 68%, #0f1418 100%);
+}
+
+a {
+  color: var(--training-link);
+}
+
+mark {
+  background: var(--training-mark-bg);
+  color: var(--training-mark-text);
 }
 
 .training-shell .card-h {
@@ -7,29 +50,138 @@ body {
   font-weight: 800;
 }
 
-.training-shell .card i {
-  color: #0d6efd;
+.training-shell .card,
+.training-shell .accordion-item,
+.training-shell .list-group-item {
+  background-color: var(--training-card-bg);
+  border-color: var(--training-card-border);
+  color: var(--training-text);
 }
 
-.training-cover {
+.training-shell .card i {
+  color: var(--training-link);
+}
+
+.training-shell .card-header,
+.training-shell .card-footer,
+.training-shell .accordion-button,
+.training-shell .table,
+.training-shell .table > :not(caption) > * > * {
+  color: var(--training-text);
+}
+
+.training-shell .text-muted {
+  color: var(--training-muted) !important;
+}
+
+.training-shell .training-cover {
   height: 220px;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
 }
 
+html[data-training-theme='dark'] .training-shell .bg-light,
+html[data-training-theme='dark'] .training-shell .bg-white,
+html[data-training-theme='dark'] .training-shell .bg-soft-primary,
+html[data-training-theme='dark'] .training-shell .wrapper-line.bg-light {
+  background-color: var(--training-soft-bg) !important;
+  color: var(--training-text) !important;
+}
+
+html[data-training-theme='dark'] .training-shell .card,
+html[data-training-theme='dark'] .training-shell .accordion-item,
+html[data-training-theme='dark'] .training-shell .list-group-item {
+  background: linear-gradient(180deg, rgba(22, 20, 23, 0.96) 0%, rgba(17, 16, 19, 0.98) 100%);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-training-theme='dark'] .training-shell .border,
+html[data-training-theme='dark'] .training-shell .border-top,
+html[data-training-theme='dark'] .training-shell .border-bottom,
+html[data-training-theme='dark'] .training-shell .border-start,
+html[data-training-theme='dark'] .training-shell .border-end {
+  border-color: var(--training-card-border) !important;
+}
+
+html[data-training-theme='dark'] .training-shell .border-primary {
+  border-color: rgba(155, 70, 72, 0.48) !important;
+}
+
+html[data-training-theme='dark'] .training-shell .accordion-button:not(.collapsed) {
+  background: linear-gradient(135deg, #8f4143 0%, #6f3033 100%);
+  color: #ffffff;
+}
+
+html[data-training-theme='dark'] .training-shell .accordion-button.collapsed {
+  background-color: var(--training-card-bg);
+}
+
+html[data-training-theme='dark'] .training-shell .nav-link {
+  color: #d9d0cf;
+}
+
+html[data-training-theme='dark'] .training-shell .nav-link.active {
+  background: linear-gradient(135deg, #8f4143 0%, #6f3033 100%);
+  border-color: #8f4143;
+  color: #ffffff;
+}
+
+html[data-training-theme='dark'] .training-shell .btn-outline-primary {
+  color: #f4f1f0;
+  border-color: #343034;
+  background: linear-gradient(135deg, #232124 0%, #18171a 100%);
+}
+
+html[data-training-theme='dark'] .training-shell .btn-outline-primary:hover,
+html[data-training-theme='dark'] .training-shell .btn-outline-primary:focus {
+  color: #ffffff;
+  background: linear-gradient(135deg, #8f4143 0%, #6f3033 100%);
+  border-color: #8f4143;
+}
+
+html[data-training-theme='dark'] .training-shell hr {
+  border-color: rgba(167, 156, 154, 0.35);
+}
+
+html[data-training-theme='dark'] .training-shell .table {
+  --bs-table-bg: var(--training-card-bg);
+  --bs-table-color: var(--training-text);
+  --bs-table-border-color: var(--training-card-border);
+}
+
+html[data-training-theme='dark'] .training-shell .text-primary {
+  color: #ce9294 !important;
+}
+
+html[data-training-theme='dark'] .training-shell .text-white-50 {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+html[data-training-theme='dark'] .training-shell .bg-primary,
+html[data-training-theme='dark'] .training-shell .btn-primary {
+  background: linear-gradient(135deg, #8f4143 0%, #6f3033 100%) !important;
+  border-color: #8f4143 !important;
+  color: #ffffff !important;
+}
+
+html[data-training-theme='dark'] .training-shell .btn-primary:hover,
+html[data-training-theme='dark'] .training-shell .btn-primary:focus {
+  background: linear-gradient(135deg, #a24e50 0%, #7e383b 100%) !important;
+  border-color: #a24e50 !important;
+}
+
 .no-copy {
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .no-copy img {
   pointer-events: none;
-}
-
-.no-copy {
-  -webkit-touch-callout: none;
 }
 
 /* Hide the module logo inside chapter headers */
