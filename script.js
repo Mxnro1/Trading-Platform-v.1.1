@@ -371,6 +371,7 @@ function reuseChartForSymbol(nextSymbol, previousSymbol) {
 
     clearChartDrawings(chartObject);
     clearOverlayIndicators(chartObject);
+    clearTouchPriceLine(chartObject);
     removeFibonacciLevels(chartObject);
     loadFibonacciLevels(chartObject, nextSymbol);
 
@@ -1487,7 +1488,12 @@ function initEventHandlers() {
             themeToggleHeader: document.getElementById('themeToggleHeader'),
             forecastButtons: document.querySelectorAll('.forecast-btn'),
             calculateButton: document.getElementById('calculateGrid'),
-            clearGridCalculationButton: document.getElementById('clearGridCalculation')
+            clearGridCalculationButton: document.getElementById('clearGridCalculation'),
+            touchDateInput: document.getElementById('touchDateInput'),
+            touchPriceInput: document.getElementById('touchPriceInput'),
+            findTouchButton: document.getElementById('findTouchButton'),
+            clearTouchButton: document.getElementById('clearTouchButton'),
+            touchPanelToggle: document.getElementById('touchPanelToggle')
         };
 
         // Проверяем наличие всех необходимых элементов
@@ -1706,6 +1712,38 @@ function initEventHandlers() {
             });
         }
 
+        if (elements.findTouchButton) {
+            elements.findTouchButton.addEventListener('click', () => {
+                try {
+                    findPriceTouch();
+                } catch (error) {
+                    console.error('[initEventHandlers] Ошибка при поиске касания цены:', error);
+                    alert('Ошибка при поиске касания цены: ' + error.message);
+                }
+            });
+        }
+
+        if (elements.clearTouchButton) {
+            elements.clearTouchButton.addEventListener('click', () => {
+                clearTouchSearch();
+            });
+        }
+
+        if (elements.touchPanelToggle) {
+            elements.touchPanelToggle.addEventListener('click', () => {
+                toggleTouchPanel();
+            });
+        }
+
+        [elements.touchDateInput, elements.touchPriceInput].forEach((el) => {
+            if (el) {
+                el.addEventListener('change', () => saveAppState({
+                    touchDate: elements.touchDateInput?.value || '',
+                    touchPrice: elements.touchPriceInput?.value || ''
+                }));
+            }
+        });
+
         const triggerModeEl = document.getElementById('triggerMode');
         const buyPriceEl = document.getElementById('buyPrice');
         const sellPriceEl = document.getElementById('sellPrice');
@@ -1866,6 +1904,7 @@ function createChart(container) {
         activeIndicator: currentIndicator,
         lastData: [],
         symbol: currentSymbol,
+        touchPriceLine: null,
         drawingOverlay,
         drawings: [],
         drawingState: {
@@ -2113,6 +2152,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (triggerModeInput && saved.triggerMode) triggerModeInput.value = saved.triggerMode;
     if (buyPriceInput && saved.buyPrice !== undefined) buyPriceInput.value = saved.buyPrice;
     if (sellPriceInput && saved.sellPrice !== undefined) sellPriceInput.value = saved.sellPrice;
+
+    const touchDateInput = document.getElementById('touchDateInput');
+    const touchPriceInput = document.getElementById('touchPriceInput');
+    if (touchDateInput && saved.touchDate) touchDateInput.value = saved.touchDate;
+    if (touchPriceInput && saved.touchPrice !== undefined) touchPriceInput.value = saved.touchPrice;
+
+    const chartTouchPanel = document.getElementById('chartTouchPanel');
+    const touchPanelToggle = document.getElementById('touchPanelToggle');
+    if (chartTouchPanel) {
+        const collapsed = Boolean(saved.touchPanelCollapsed);
+        chartTouchPanel.classList.toggle('collapsed', collapsed);
+        if (touchPanelToggle) {
+            touchPanelToggle.textContent = collapsed ? 'Показать' : 'Скрыть';
+        }
+    }
 
     updateHomeStatus();
     initCharts();
@@ -2723,6 +2777,104 @@ function clearPriceLevelLines() {
         buyLevelLine = null;
         sellLevelLine = null;
     }
+}
+
+function clearTouchPriceLine(chartObject) {
+    if (!chartObject || !chartObject.candlestickSeries) return;
+    if (chartObject.touchPriceLine) {
+        try {
+            chartObject.candlestickSeries.removePriceLine(chartObject.touchPriceLine);
+        } catch (error) {
+            console.warn('[clearTouchPriceLine] Ошибка при удалении линии касания:', error);
+        }
+        chartObject.touchPriceLine = null;
+    }
+}
+
+function renderTouchResult(message) {
+    const resultEl = document.getElementById('touchResult');
+    if (!resultEl) return;
+    resultEl.textContent = message;
+}
+
+function clearTouchSearch() {
+    const chartObject = charts[currentSymbol];
+    clearTouchPriceLine(chartObject);
+    renderTouchResult('Укажи дату и цену, чтобы найти первое касание на графике.');
+}
+
+function toggleTouchPanel() {
+    const panel = document.getElementById('chartTouchPanel');
+    const toggleButton = document.getElementById('touchPanelToggle');
+    if (!panel || !toggleButton) return;
+
+    const isCollapsed = panel.classList.toggle('collapsed');
+    toggleButton.textContent = isCollapsed ? 'Показать' : 'Скрыть';
+    saveAppState({ touchPanelCollapsed: isCollapsed });
+}
+
+function findPriceTouch() {
+    const dateInput = document.getElementById('touchDateInput');
+    const priceInput = document.getElementById('touchPriceInput');
+    if (!dateInput || !priceInput) return;
+
+    const dateValue = dateInput.value;
+    const touchPrice = parseFloat(priceInput.value);
+
+    if (!dateValue) {
+        renderTouchResult('Выберите дату касания.');
+        return;
+    }
+    if (!Number.isFinite(touchPrice) || touchPrice <= 0) {
+        renderTouchResult('Введите корректную цену касания.');
+        return;
+    }
+
+    const chartObject = charts[currentSymbol];
+    if (!chartObject || !Array.isArray(chartObject.lastData) || chartObject.lastData.length === 0) {
+        renderTouchResult('График ещё не загружен или нет данных.');
+        return;
+    }
+
+    const searchTimestampMs = getMoscowDateBoundaryTimestamp(dateValue);
+    if (!Number.isFinite(searchTimestampMs)) {
+        renderTouchResult('Неверная дата касания.');
+        return;
+    }
+
+    const searchTimestamp = searchTimestampMs / 1000;
+    const match = chartObject.lastData.find(candle => candle.time >= searchTimestamp && candle.low <= touchPrice && candle.high >= touchPrice);
+
+    clearTouchPriceLine(chartObject);
+
+    if (!match) {
+        renderTouchResult(`Касания ${touchPrice.toFixed(2)}$ после ${dateValue} не найдено.`);
+        saveAppState({ touchDate: dateValue, touchPrice: priceInput.value || '' });
+        return;
+    }
+
+    try {
+        chartObject.touchPriceLine = chartObject.candlestickSeries.createPriceLine({
+            price: touchPrice,
+            color: '#7c3aed',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: `Касание ${touchPrice.toFixed(2)}`
+        });
+    } catch (error) {
+        console.error('[findPriceTouch] Ошибка при рисовании линии касания:', error);
+    }
+
+    const timeLabel = formatDateTime(match.time);
+    renderTouchResult(`Первое касание ${touchPrice.toFixed(2)}$: ${timeLabel} (H:${match.high.toFixed(2)} L:${match.low.toFixed(2)}).`);
+
+    const intervalSeconds = getIntervalInMs(config.defaultInterval) / 1000;
+    const firstVisible = Math.max(chartObject.lastData[0].time, match.time - intervalSeconds * 10);
+    const lastVisible = Math.min(chartObject.lastData[chartObject.lastData.length - 1].time, match.time + intervalSeconds * 12);
+    chartObject.main.timeScale().setVisibleRange({ from: firstVisible, to: lastVisible });
+
+    saveAppState({ touchDate: dateValue, touchPrice: priceInput.value || '' });
 }
 
 // Функция для отрисовки линий уровней покупки/продажи
