@@ -738,6 +738,75 @@ body[data-theme="dark"] .grid-trade-log td {
     font-size: 0.9rem;
 }
 
+.chart-touch-panel {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto 18px;
+    padding: 16px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.chart-touch-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+}
+
+.chart-touch-panel h3 {
+    flex: 1 1 auto;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.chart-touch-body {
+    width: 100%;
+    display: grid;
+    gap: 12px;
+}
+
+.chart-touch-fields {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) auto auto;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+}
+
+.touch-result {
+    width: 100%;
+    min-width: 240px;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.chart-touch-panel.collapsed {
+    padding-bottom: 12px;
+}
+
+.chart-touch-panel.collapsed .chart-touch-body {
+    display: none;
+}
+
+.chart-toolbar-interval select,
+.chart-toolbar-symbol select,
+.chart-toolbar-indicator select,
+.chart-toolbar-drawing select,
+.date-range input,
+.chart-touch-fields input,
+.chart-touch-fields button {
+    padding-inline: 14px;
+}
+
 .chart-toolbar-interval select,
 .chart-toolbar-symbol select,
 .chart-toolbar-indicator select,
