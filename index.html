@@ -10,7 +10,7 @@
     <title>Bitcoin Chart</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="style.css?v=9">
-    <link rel="stylesheet" href="risk.css?v=6">
+    <link rel="stylesheet" href="risk.css?v=7">
     <!-- Сначала загружаем внешние библиотеки -->
     <script
       src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"
@@ -254,6 +254,22 @@
 
         <div class="chart-container">
             <!-- Графики будут добавлены здесь -->
+        </div>
+
+        <div class="chart-touch-panel" id="chartTouchPanel">
+            <div class="chart-touch-panel-header">
+                <h3>Поиск касания цены</h3>
+                <button id="touchPanelToggle" type="button" class="secondary-btn">Скрыть</button>
+            </div>
+            <div class="chart-touch-body">
+                <div class="chart-touch-fields">
+                    <input type="date" id="touchDateInput" aria-label="Дата касания" placeholder="Дата касания">
+                    <input type="number" id="touchPriceInput" step="0.01" aria-label="Цена касания" placeholder="Цена касания">
+                    <button id="findTouchButton" type="button">Найти касание</button>
+                    <button id="clearTouchButton" type="button" class="secondary-btn">Очистить</button>
+                </div>
+                <div id="touchResult" class="touch-result">Укажи дату и цену, чтобы найти первое касание на графике.</div>
+            </div>
         </div>
 
         <div id="candleInfo" class="candle-info">
@@ -957,6 +973,7 @@
                     <button class="risk-tab-btn risk-more-toggle" type="button" id="riskMoreToggle" aria-expanded="false">Еще</button>
                     <div class="risk-more-menu" id="riskMoreMenu" hidden>
                       <button class="risk-tab-btn risk-more-item" type="button" data-risk-tab="ladder">Лестница</button>
+                      <button class="risk-tab-btn risk-more-item" type="button" data-risk-tab="area">Торговая область</button>
                     </div>
                   </div>
                 </div>
@@ -1190,6 +1207,117 @@
                     </div>
                   </div>
                 </section>
+
+                <section class="risk-tab-panel" id="risk-area-panel">
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3>Торговая область и зеркала</h3>
+                        <p class="risk-panel-note">Карта области с трендом, зеркала и авто-сетки по всей зоне. Для каждой строки считается прибыль, срабатывания и ликвидация.</p>
+                      </div>
+                    </div>
+                    <div class="risk-form-grid four risk-area-config-grid">
+                      <div>
+                        <label for="riskAreaSymbol">Монета</label>
+                        <select id="riskAreaSymbol">
+                          <option value="ETH">ETH</option>
+                          <option value="BTC">BTC</option>
+                          <option value="SOL">SOL</option>
+                          <option value="XRP">XRP</option>
+                          <option value="TRX">TRX</option>
+                        </select>
+                      </div>
+                      <div><label for="riskAreaUpperBarrier">Верхний барьер</label><input type="number" id="riskAreaUpperBarrier" value="2375"></div>
+                      <div><label for="riskAreaUpperBoundary">Верхняя граница зоны</label><input type="number" id="riskAreaUpperBoundary" value="2225"></div>
+                      <div><label for="riskAreaLowerBoundary">Нижняя граница зоны</label><input type="number" id="riskAreaLowerBoundary" value="1800"></div>
+                      <div><label for="riskAreaLowerBarrier">Нижний барьер</label><input type="number" id="riskAreaLowerBarrier" value="1750"></div>
+                      <div><label for="riskAreaStepPoints">Шаг сетки (пункты)</label><input type="number" id="riskAreaStepPoints" value="50" min="1"></div>
+                      <div><label for="riskAreaTakeProfitPoints">Тейк на ордер (пункты)</label><input type="number" id="riskAreaTakeProfitPoints" value="8" min="1"></div>
+                      <div><label for="riskAreaOrdersPerMirror">Ордеров в зеркале</label><input type="number" id="riskAreaOrdersPerMirror" value="5" min="1" max="30"></div>
+                      <div><label for="riskAreaMirrorLeverage">Плечо зеркал</label><input type="number" id="riskAreaMirrorLeverage" value="10" min="1" max="125"></div>
+                      <div><label for="riskAreaMirrorBudget">Бюджет на зеркало ($)</label><input type="number" id="riskAreaMirrorBudget" value="2500" min="0"></div>
+                      <div><label for="riskAreaBudgetStep">Шаг бюджета по строкам ($)</label><input type="number" id="riskAreaBudgetStep" value="0" min="0"></div>
+                      <div><label for="riskAreaLeverageStep">Шаг плеча по строкам</label><input type="number" id="riskAreaLeverageStep" value="0" min="0"></div>
+                      <div><label for="riskAreaTargetLiqDistance">Цель ликвидации от цены (%)</label><input type="number" id="riskAreaTargetLiqDistance" value="10" min="1" max="80"></div>
+                      <div>
+                        <label for="riskAreaLiqAdjustMode">Авто-подстройка ликвидации</label>
+                        <select id="riskAreaLiqAdjustMode">
+                          <option value="none">Выключена</option>
+                          <option value="leverage">Только плечо</option>
+                          <option value="balance">Плечо + депозит</option>
+                        </select>
+                      </div>
+                      <div><label for="riskAreaAutoRefreshMin">Авто-пересчет (мин)</label><input type="number" id="riskAreaAutoRefreshMin" value="5" min="1" max="60"></div>
+                      <div><label for="riskAreaOporaLoss">Лосс Опора за 1 попытку ($)</label><input type="number" id="riskAreaOporaLoss" value="50" min="0"></div>
+                      <div><label for="riskAreaReserveExpansion">Доп. депозит ($)</label><input type="number" id="riskAreaReserveExpansion" value="1000" min="0"></div>
+                      <div><label for="riskAreaReserveEmergency">Свободные деньги ($)</label><input type="number" id="riskAreaReserveEmergency" value="1500" min="0"></div>
+                    </div>
+                    <div class="risk-actions">
+                      <button id="riskAreaRecalcBtn" type="button">Пересчитать срабатывания</button>
+                    </div>
+                  </div>
+
+                  <div class="risk-dashboard-grid">
+                    <div class="risk-panel">
+                      <h3>Карта области</h3>
+                      <div class="risk-area-trend-row">
+                        <span id="riskAreaCurrentPrice">Текущий курс: -</span>
+                        <strong id="riskAreaTrendBadge" class="risk-area-trend-badge">Тренд: -</strong>
+                      </div>
+                      <div class="risk-area-map">
+                        <div class="risk-area-level"><span>Верхний барьер</span><strong id="riskAreaMapUpperBarrier">-</strong></div>
+                        <div class="risk-area-level"><span>Верхняя граница</span><strong id="riskAreaMapUpperBoundary">-</strong></div>
+                        <div class="risk-area-zone-tag"><span>Торговая зона</span><strong id="riskAreaZoneSize">-</strong></div>
+                        <div class="risk-area-level"><span>Нижняя граница</span><strong id="riskAreaMapLowerBoundary">-</strong></div>
+                        <div class="risk-area-level"><span>Нижний барьер</span><strong id="riskAreaMapLowerBarrier">-</strong></div>
+                      </div>
+                      <div id="riskAreaStatus" class="risk-helper-text">Заполни параметры зеркал, чтобы увидеть расчет.</div>
+                    </div>
+
+                    <div class="risk-panel">
+                      <h3>Зеркала</h3>
+                      <div class="risk-dashboard-grid risk-area-mirror-grid">
+                        <div class="risk-panel">
+                          <h3>Зеркало A · SHORT</h3>
+                          <div class="risk-stats-grid two">
+                            <div class="risk-stat-card"><div class="risk-stat-label">Сетка</div><div class="risk-stat-value" id="riskAreaShortGridInfo">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Бюджет/ордер</div><div class="risk-stat-value" id="riskAreaShortBudgetPerOrder">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Ликвидация</div><div class="risk-stat-value" id="riskAreaShortLiq">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Буфер до барьера</div><div class="risk-stat-value" id="riskAreaShortBuffer">-</div></div>
+                          </div>
+                        </div>
+
+                        <div class="risk-panel">
+                          <h3>Зеркало B · LONG</h3>
+                          <div class="risk-stats-grid two">
+                            <div class="risk-stat-card"><div class="risk-stat-label">Сетка</div><div class="risk-stat-value" id="riskAreaLongGridInfo">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Бюджет/ордер</div><div class="risk-stat-value" id="riskAreaLongBudgetPerOrder">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Ликвидация</div><div class="risk-stat-value" id="riskAreaLongLiq">-</div></div>
+                            <div class="risk-stat-card"><div class="risk-stat-label">Буфер до барьера</div><div class="risk-stat-value" id="riskAreaLongBuffer">-</div></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="risk-stats-grid four risk-area-reserve-grid">
+                    <div class="risk-stat-card"><div class="risk-stat-label">Доп. депозит</div><div class="risk-stat-value" id="riskAreaReserveExpansionValue">-</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Контейнер (20 лоссов)</div><div class="risk-stat-value" id="riskAreaReserveContainerValue">-</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Свободные деньги</div><div class="risk-stat-value" id="riskAreaReserveEmergencyValue">-</div></div>
+                    <div class="risk-stat-card"><div class="risk-stat-label">Резерв всего</div><div class="risk-stat-value" id="riskAreaReserveTotalValue">-</div></div>
+                  </div>
+
+                  <div class="risk-panel risk-full">
+                    <div class="risk-orders-head">
+                      <div>
+                        <h3>Авто-сетки по всей области</h3>
+                        <p class="risk-panel-note">Генерация идет по всему диапазону зоны. Каждая сетка сворачивается отдельно; внутри таблица ордеров со всеми расчетами.</p>
+                        <div id="riskAreaDataInfo" class="risk-helper-text">История срабатываний загружается...</div>
+                      </div>
+                    </div>
+                    <div id="riskAreaAutoGridWrap" class="risk-area-grid-list"></div>
+                  </div>
+                </section>
               </div>
             </div>
 
@@ -1201,7 +1329,7 @@
     <script src="arbitrage.js?v=6"></script>
     <script src="script.js?v=13"></script>
     <script src="monitor.js?v=6"></script>
-    <script src="risk.js?v=6"></script>
+    <script src="risk.js?v=8"></script>
    <script>
     // --- Логика крипто-конвертера ---
     (function() {
